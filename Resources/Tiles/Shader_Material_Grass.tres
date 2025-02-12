@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dfhye0knw240"]
+
+[ext_resource type="Shader" uid="uid://vbtgok81y76u" path="res://Resources/Tiles/Tile_Shader.tres" id="1_iv4nl"]
+[ext_resource type="Texture2D" uid="uid://byto724amapex" path="res://Resources/Tiles/Terrain_Tile_Texture.png" id="2_pde74"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_iv4nl")
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(0.125, 0.125, 0.125)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/texture_albedo = ExtResource("2_pde74")
