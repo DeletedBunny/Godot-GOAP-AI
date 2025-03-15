@@ -1,6 +1,6 @@
 [gd_resource type="BoxMesh" load_steps=2 format=3 uid="uid://xcpero28gc83"]
 
-[ext_resource type="Material" uid="uid://cems86712p45d" path="res://Resources/Tiles/Shader_Material_Water.tres" id="1_tgxj3"]
+[ext_resource type="Material" uid="uid://cems86712p45d" path="res://Resources/Tiles Prototype/Shader_Material_Water.tres" id="1_tgxj3"]
 
 [resource]
 material = ExtResource("1_tgxj3")

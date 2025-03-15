@@ -1,7 +1,7 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dfhye0knw240"]
 
-[ext_resource type="Shader" uid="uid://vbtgok81y76u" path="res://Resources/Tiles/Tile_Shader.tres" id="1_iv4nl"]
-[ext_resource type="Texture2D" uid="uid://byto724amapex" path="res://Resources/Tiles/Terrain_Tile_Texture.png" id="2_pde74"]
+[ext_resource type="Shader" uid="uid://vbtgok81y76u" path="res://Resources/Tiles Prototype/Tile_Shader.tres" id="1_iv4nl"]
+[ext_resource type="Texture2D" uid="uid://byto724amapex" path="res://Resources/Tiles Prototype/Terrain_Tile_Texture.png" id="2_pde74"]
 
 [resource]
 render_priority = 0
