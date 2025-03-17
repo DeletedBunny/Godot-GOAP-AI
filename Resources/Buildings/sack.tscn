@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://db3jk0h2c1twt"]
+
+[ext_resource type="PackedScene" uid="uid://mkgvqjrop082" path="res://Resources/gltf/sack.gltf" id="1_vpehq"]
+
+[node name="sack" instance=ExtResource("1_vpehq")]
+transform = Transform3D(-1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0, 1, 0, 0.025, 0)

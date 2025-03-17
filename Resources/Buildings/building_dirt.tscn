@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqkb0jwjdiyqb"]
+
+[ext_resource type="PackedScene" uid="uid://cdj81uvs3t30e" path="res://Resources/gltf/building_dirt.gltf" id="1_dufvd"]
+
+[node name="building_dirt" instance=ExtResource("1_dufvd")]

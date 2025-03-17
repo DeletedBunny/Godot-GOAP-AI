@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://bt4c1o4xhnpx5"]
+
+[ext_resource type="PackedScene" uid="uid://c1r5js0peuu15" path="res://Resources/gltf/building_blacksmith_yellow.gltf" id="1_vq0mt"]
+
+[node name="building_blacksmith_yellow" instance=ExtResource("1_vq0mt")]

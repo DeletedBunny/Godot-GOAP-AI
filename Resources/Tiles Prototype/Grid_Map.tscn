@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://b2nqmhrcufdc1"]
 
-[ext_resource type="Material" uid="uid://dfhye0knw240" path="res://Resources/Tiles/Shader_Material_Grass.tres" id="1_swmt4"]
-[ext_resource type="BoxMesh" uid="uid://xcpero28gc83" path="res://Resources/Tiles/TileMesh.tres" id="2_kuwm4"]
+[ext_resource type="Material" uid="uid://dfhye0knw240" path="res://Resources/Tiles Prototype/Shader_Material_Grass.tres" id="1_swmt4"]
+[ext_resource type="BoxMesh" uid="uid://xcpero28gc83" path="res://Resources/Tiles Prototype/TileMesh.tres" id="2_kuwm4"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_et2m6"]
 material = ExtResource("1_swmt4")
@@ -11,12 +11,14 @@ size = Vector3(2, 1, 2)
 item/0/name = "Grass"
 item/0/mesh = SubResource("BoxMesh_et2m6")
 item/0/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/mesh_cast_shadow = 1
 item/0/shapes = []
 item/0/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 item/0/navigation_layers = 1
 item/1/name = "Water"
 item/1/mesh = ExtResource("2_kuwm4")
 item/1/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/1/mesh_cast_shadow = 1
 item/1/shapes = []
 item/1/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 item/1/navigation_layers = 1
