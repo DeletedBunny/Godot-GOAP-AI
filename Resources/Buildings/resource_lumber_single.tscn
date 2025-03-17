@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwv7qn145id7c"]
+
+[ext_resource type="PackedScene" uid="uid://rq5d31ah8vcp" path="res://Resources/gltf/resource_lumber_single.gltf" id="1_8nlnb"]
+
+[node name="resource_lumber_single" instance=ExtResource("1_8nlnb")]

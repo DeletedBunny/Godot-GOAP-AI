@@ -1,0 +1,55 @@
+[gd_scene load_steps=6 format=4 uid="uid://b1gf6235ae5f1"]
+
+[ext_resource type="Texture2D" uid="uid://dhsg0cmycahkm" path="res://Resources/Textures/hexagons_medieval.png" id="1_atbjn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2nsh"]
+resource_name = "hexagons_medieval"
+albedo_texture = ExtResource("1_atbjn")
+roughness = 0.6
+uv1_scale = Vector3(0.125, 0.25, 1)
+uv1_offset = Vector3(0, 0.5, 0)
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_jccfu"]
+_surfaces = [{
+"aabb": AABB(-1, 0, -1, 2, 1, 2),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAwABAAAAAAACAAQAAwAFAAEABQACAAEAAAAGAAMABgAFAAMAAAAEAAYABQAHAAIABAACAAcABgAHAAUABAAHAAYA"),
+"name": "Green",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("AAD/////AAAAAAAA//8AAAAAAAAAAAAA////////AAAAAP//AAAAAP//AAD//wAA/////wAAAAD//wAAAAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_pt1bv"]
+resource_name = "square_forest_gltf_Cube_901"
+_surfaces = [{
+"aabb": AABB(-1, 0, -1, 2, 1, 2),
+"attribute_data": PackedByteArray("/5///0aE//9GhP+//5//v/+f/z9GhP8/RoQAAP+fAAD/n/9/RoT/f0aE/z//n/8//9//P//f/3//n/9//5//P/+f/79GhP+/RoT/f/+f/39GhP8/RoT/f0aE/79GhAAA"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAACAAMABAAFAAYABAAGAAcACAAJAAoACAAKAAsADAANAA4ADAAOAA8AEAARABIAEAASABMAFAAVABYAFAAWABcA"),
+"material": SubResource("StandardMaterial3D_h2nsh"),
+"name": "Green",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("AAD/////VNUAAAAA//9U1QAAAAAAAFTVAAD//wAAVNX/////////v///AAD///+/AAAAAP///78AAP//////v/////8AAFTV//8AAAAAVNX//wAA//9U1f///////1TVAAD///////8AAP//AAD///////8AAP////////////8AAP//AAD//wAAAAAAAP////8AAAAA////////AAD/////AAD///+///8AAAAA/78AAAAAAAD/vwAAAAD///+/VNVU1VTVVNVU1VTVVNVU1f////////////////////+qKqoqqiqqKqoqqiqqKqoq/3//v/9//7//f/+//3//v/+//7//v/+//7//v/+//78AAP9/AAD/fwAA/38AAP9/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_jccfu")
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_6g683"]
+points = PackedVector3Array(-1, 0, -1, -1, 1, -1, 1, 0, -1, -1, 0, 1, -1, 1, 1, 1, 1, -1, 1, 0, 1, 1, 1, 1)
+
+[node name="square_forest" type="MeshInstance3D"]
+cast_shadow = 0
+mesh = SubResource("ArrayMesh_pt1bv")
+skeleton = NodePath("")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_6g683")

@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://crpoi44tshi4w"]
+
+[ext_resource type="PackedScene" uid="uid://d0chkrirkc27c" path="res://Resources/gltf/building_grain.gltf" id="1_oyttl"]
+
+[node name="building_grain" instance=ExtResource("1_oyttl")]

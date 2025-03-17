@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://b24fi7fkg74yb"]
+
+[ext_resource type="PackedScene" uid="uid://dd40i5xw8ld6h" path="res://Resources/gltf/building_market_yellow.gltf" id="1_wmkvb"]
+
+[node name="building_market_yellow" instance=ExtResource("1_wmkvb")]

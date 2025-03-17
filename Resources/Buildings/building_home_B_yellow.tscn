@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0txs1powrbaw"]
+
+[ext_resource type="PackedScene" uid="uid://decdgk4lbtuuv" path="res://Resources/gltf/building_home_B_yellow.gltf" id="1_toehb"]
+
+[node name="building_home_B_yellow" instance=ExtResource("1_toehb")]
