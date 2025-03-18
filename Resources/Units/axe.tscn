@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dtoqat0o33cxa"]
+
+[ext_resource type="Texture2D" uid="uid://8r2va8kv0a8c" path="res://Resources/source pictures/axe.png" id="1_p1phs"]
+
+[node name="Axe" type="Sprite3D"]
+offset = Vector2(-130, 50)
+pixel_size = 0.005
+billboard = 2
+double_sided = false
+render_priority = 1
+texture = ExtResource("1_p1phs")

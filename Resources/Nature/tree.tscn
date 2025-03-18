@@ -1,0 +1,36 @@
+[gd_scene load_steps=7 format=3 uid="uid://cfoa214q5a61k"]
+
+[ext_resource type="Texture2D" uid="uid://b728sv7k4n7ht" path="res://Resources/source pictures/oak_tree_0.png" id="1_65j4v"]
+[ext_resource type="Texture2D" uid="uid://cskm7yu5uquj8" path="res://Resources/source pictures/oak_tree_4.png" id="2_seq7i"]
+[ext_resource type="Texture2D" uid="uid://d11eurmdhbirf" path="res://Resources/source pictures/oak_tree_7.png" id="3_y2gly"]
+[ext_resource type="Texture2D" uid="uid://dl2tq7dohhkpn" path="res://Resources/source pictures/oak_tree_8.png" id="4_tlf3p"]
+[ext_resource type="Texture2D" uid="uid://bdb8iedy4l3gd" path="res://Resources/source pictures/oak_tree_9.png" id="5_lotmd"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_07pif"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_65j4v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_seq7i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_y2gly")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_tlf3p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_lotmd")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Tree" type="AnimatedSprite3D"]
+offset = Vector2(0, 155)
+billboard = 2
+double_sided = false
+sprite_frames = SubResource("SpriteFrames_07pif")

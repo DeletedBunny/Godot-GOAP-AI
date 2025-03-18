@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://8gc3fd3e1a02"]
+
+[ext_resource type="Texture2D" uid="uid://c8v27e0tijqll" path="res://Resources/source pictures/grass_bush_2.png" id="1_p01jg"]
+[ext_resource type="Texture2D" uid="uid://bwwi030jluhmh" path="res://Resources/source pictures/grass_bush_4.png" id="2_is603"]
+[ext_resource type="Texture2D" uid="uid://dxgv51nkeel1i" path="res://Resources/source pictures/grass_bush_7.png" id="3_noxkc"]
+[ext_resource type="Texture2D" uid="uid://cxoxfaekslaxb" path="res://Resources/source pictures/grass_bush_10.png" id="4_mouxa"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_im263"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_p01jg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_is603")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_noxkc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_mouxa")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Grass" type="AnimatedSprite3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+offset = Vector2(0, 30)
+pixel_size = 0.002
+billboard = 2
+double_sided = false
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_im263")

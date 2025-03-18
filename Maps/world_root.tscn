@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bc2vwlnqsqphx"]
+
+[ext_resource type="PackedScene" uid="uid://bl1ellmlvn8nf" path="res://Resources/Tiles/grid_map.tscn" id="1_0ey6h"]
+
+[node name="WorldRoot" type="Node"]
+
+[node name="GridMap" parent="." instance=ExtResource("1_0ey6h")]
