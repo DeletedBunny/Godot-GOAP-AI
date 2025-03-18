@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1x4jio8cxvx"]
+
+[ext_resource type="Texture2D" uid="uid://up07uge8d6fl" path="res://Resources/source pictures/hammer.png" id="1_3swy0"]
+
+[node name="Hammer" type="Sprite3D"]
+offset = Vector2(-110, 40)
+pixel_size = 0.005
+billboard = 2
+double_sided = false
+render_priority = 1
+texture = ExtResource("1_3swy0")

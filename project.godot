@@ -21,5 +21,6 @@ project/assembly_name="Godot-GOAP-AI"
 [file_customization]
 
 folder_colors={
+"res://Maps/": "green",
 "res://Resources/": "red"
 }
