@@ -1,11 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://dtoqat0o33cxa"]
+[gd_scene load_steps=4 format=3 uid="uid://dtoqat0o33cxa"]
 
 [ext_resource type="Texture2D" uid="uid://8r2va8kv0a8c" path="res://Resources/source pictures/axe.png" id="1_p1phs"]
+[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/GOAP/Godot/CustomResource/GodotGoapResource.cs" id="2_1tpuu"]
+
+[sub_resource type="Resource" id="Resource_2pyi7"]
+script = ExtResource("2_1tpuu")
+GoapResourceType = 0
+metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [node name="Axe" type="Sprite3D"]
 offset = Vector2(-130, 50)
-pixel_size = 0.005
+pixel_size = 0.002
 billboard = 2
 double_sided = false
 render_priority = 1
 texture = ExtResource("1_p1phs")
+metadata/GoapResourceType = SubResource("Resource_2pyi7")
