@@ -94,8 +94,10 @@ public partial class CameraController : Node3D
 		_zoomDesired.Z = _zoomLevel * ZoomStepSize + _zoomOffset;
 
 		_zoomActual = _zoomActual.Lerp(_zoomDesired, 0.2f);
-		
+
 		if (!_zoomDesired.IsEqualApprox(_zoomActual))
-			_camera.GlobalPosition = _zoomActual;
+		{
+			_camera.Position = _zoomActual;
+		}
 	}
 }
