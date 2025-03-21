@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bolqb62b7oj2"]
+
+[ext_resource type="Script" uid="uid://cyw6updbq5x14" path="res://Source/GOAP/GoapMainController.cs" id="1_m1wkr"]
+
+[node name="GoapMainController" type="Node"]
+script = ExtResource("1_m1wkr")

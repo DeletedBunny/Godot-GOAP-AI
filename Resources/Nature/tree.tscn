@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://cfoa214q5a61k"]
+[gd_scene load_steps=8 format=3 uid="uid://cfoa214q5a61k"]
 
 [ext_resource type="Texture2D" uid="uid://b728sv7k4n7ht" path="res://Resources/source pictures/oak_tree_0.png" id="1_65j4v"]
 [ext_resource type="Texture2D" uid="uid://cskm7yu5uquj8" path="res://Resources/source pictures/oak_tree_4.png" id="2_seq7i"]
 [ext_resource type="Texture2D" uid="uid://d11eurmdhbirf" path="res://Resources/source pictures/oak_tree_7.png" id="3_y2gly"]
 [ext_resource type="Texture2D" uid="uid://dl2tq7dohhkpn" path="res://Resources/source pictures/oak_tree_8.png" id="4_tlf3p"]
 [ext_resource type="Texture2D" uid="uid://bdb8iedy4l3gd" path="res://Resources/source pictures/oak_tree_9.png" id="5_lotmd"]
+[ext_resource type="Script" uid="uid://cy3fk3jw22dh4" path="res://Source/GOAP/Models/GoapTree.cs" id="6_seq7i"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_07pif"]
 animations = [{
@@ -31,6 +32,8 @@ animations = [{
 
 [node name="Tree" type="AnimatedSprite3D"]
 offset = Vector2(0, 155)
+pixel_size = 0.005
 billboard = 2
 double_sided = false
 sprite_frames = SubResource("SpriteFrames_07pif")
+script = ExtResource("6_seq7i")

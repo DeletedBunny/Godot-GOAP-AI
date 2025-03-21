@@ -1,11 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://c1x4jio8cxvx"]
+[gd_scene load_steps=4 format=3 uid="uid://c1x4jio8cxvx"]
 
 [ext_resource type="Texture2D" uid="uid://up07uge8d6fl" path="res://Resources/source pictures/hammer.png" id="1_3swy0"]
+[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/GOAP/Godot/CustomResource/GodotGoapResource.cs" id="2_rj5gr"]
+
+[sub_resource type="Resource" id="Resource_ew2wf"]
+script = ExtResource("2_rj5gr")
+GoapResourceType = 1
+metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [node name="Hammer" type="Sprite3D"]
 offset = Vector2(-110, 40)
-pixel_size = 0.005
+pixel_size = 0.002
 billboard = 2
 double_sided = false
 render_priority = 1
 texture = ExtResource("1_3swy0")
+metadata/GoapResourceType = SubResource("Resource_ew2wf")
