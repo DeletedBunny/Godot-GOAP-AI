@@ -4,7 +4,7 @@ using GodotGOAPAI.Source.GOAP.Models;
 
 namespace GodotGOAPAI.Source.GOAP.WorldStateGenerator;
 
-public interface IGoapWorldStateGenerator
+public interface IGoapWorldStateGenerator<T, TReturn>
 {
-    GoapWorldStateModel GenerateWorldStateModel(IGameObject worldCollectionsRootNode);
+    GoapWorldStateModel<TReturn> GenerateWorldStateModel(GameObject<T> worldCollectionsRootNode);
 }

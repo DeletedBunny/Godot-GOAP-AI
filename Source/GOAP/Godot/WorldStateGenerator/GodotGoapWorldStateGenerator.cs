@@ -9,20 +9,20 @@ using GodotGOAPAI.Source.GOAP.WorldStateGenerator;
 
 namespace GodotGOAPAI.Source.GOAP.Godot.WorldStateGenerator;
 
-public class GodotGoapWorldStateGenerator : IGoapWorldStateGenerator
+public class GodotGoapWorldStateGenerator : IGoapWorldStateGenerator<Node, Node3D>
 {
-    public GoapWorldStateModel GenerateWorldStateModel(IGameObject worldCollectionsRootNode)
+    public GoapWorldStateModel<Node3D> GenerateWorldStateModel(GameObject<Node> worldCollectionsRootNode)
     {
-        if (worldCollectionsRootNode is not GodotNode node)
+        if (worldCollectionsRootNode is not GameObject<Node> node)
             throw new Exception("The node is not a GodotNode");
         
-        var resourcesAmountByType = new Dictionary<GoapResourceType, int>();
+        var resourcesAmountByType = new System.Collections.Generic.Dictionary<GoapResourceType, List<Node3D>>();
         AddStaticWorldResourcesToDictionary(node, resourcesAmountByType);
         AddDynamicItemsToDictionary(node, resourcesAmountByType);
-        return new GoapWorldStateModel(resourcesAmountByType).WithEmptyInitialization();
+        return new GoapWorldStateModel<Node3D>(resourcesAmountByType).WithEmptyInitialization();
     }
 
-    private void AddStaticWorldResourcesToDictionary(GodotNode worldCollectionsRootNode, Dictionary<GoapResourceType, int> resourcesAmountByType)
+    private void AddStaticWorldResourcesToDictionary(GameObject<Node> worldCollectionsRootNode, System.Collections.Generic.Dictionary<GoapResourceType, List<Node3D>> resourcesAmountByType)
     {
         foreach (var collection in worldCollectionsRootNode.Self.GetChildren())
         {
@@ -31,30 +31,33 @@ public class GodotGoapWorldStateGenerator : IGoapWorldStateGenerator
             if(resourceType == null)
                 continue;
             
-            resourcesAmountByType.Add(resourceType.GoapResourceType, collection.GetChildCount());
+            var nodes = collection.GetChildren().Where(node => node is Node3D).Cast<Node3D>().ToList();
+            resourcesAmountByType.Add(resourceType.GoapResourceType, nodes);
         }
     }
 
-    private void AddDynamicItemsToDictionary(GodotNode worldCollectionsRootNode, Dictionary<GoapResourceType, int> resourcesAmountByType)
+    private void AddDynamicItemsToDictionary(GameObject<Node> worldCollectionsRootNode, System.Collections.Generic.Dictionary<GoapResourceType, List<Node3D>> resourcesAmountByType)
     {
         var itemsNode = worldCollectionsRootNode.Self.GetNode<Node>("Items");
-        var dynamicItemsList = itemsNode.GetChildren();
         foreach (var type in Enum.GetValues<GoapResourceType>())
         {
             if (IgnoredWorldResourceTypes.IgnoreList.Contains(type))
                 continue;
 
-            var resourcesByType = dynamicItemsList.Where(r =>
+            var resourcesByType = itemsNode.GetChildren().Where(node =>
             {
-                var resourceType = r.GetMeta("GoapResourceType").Obj as GodotGoapResource;
+                if(node is not Node3D)
+                    return false;
+                
+                var resourceType = node.GetMeta("GoapResourceType").Obj as GodotGoapResource;
                 
                 if(resourceType == null)
-                    throw new Exception("The GoapResourceType metadata is not a GodotGoapResource on node - " + r.Name);
+                    throw new Exception("The GoapResourceType metadata is not a GodotGoapResource on node - " + node.Name);
                 
                 return resourceType.GoapResourceType == type;
-            }).ToList();
+            }).Cast<Node3D>().ToList();
             
-            resourcesAmountByType.Add(type, resourcesByType.Count);
+            resourcesAmountByType.Add(type, resourcesByType);
         }
     }
 }

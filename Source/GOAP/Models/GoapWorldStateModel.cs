@@ -1,59 +1,61 @@
 using System;
 using System.Collections.Generic;
+using Godot;
+using GodotGOAPAI.Source.GOAP.Abstraction;
 
 namespace GodotGOAPAI.Source.GOAP.Models;
 
-public class GoapWorldStateModel
+public class GoapWorldStateModel<T>
 {
 	private readonly object _worldResourcesLock = new object();
 	
-	public Dictionary<GoapResourceType, int> ResourcesAmountByType { get; private set; }
+	public Dictionary<GoapResourceType, List<T>> ResourcesAmountByType { get; private set; }
 
-	public GoapWorldStateModel(Dictionary<GoapResourceType, int> resourcesAmountByType)
+	public GoapWorldStateModel(Dictionary<GoapResourceType, List<T>> resourcesAmountByType)
 	{
 		ResourcesAmountByType = resourcesAmountByType;
 	}
 
-	public GoapWorldStateModel WithEmptyInitialization()
+	public GoapWorldStateModel<T> WithEmptyInitialization()
 	{
 		foreach (var type in Enum.GetValues<GoapResourceType>())
 		{
 			if(ResourcesAmountByType.ContainsKey(type))
 				continue;
 			
-			AddItems(type,0);
+			AddItems(type, new List<T>());
 		}
 		
 		return this;
 	}
 	
-	public void AddItems(GoapResourceType type, int amount)
+	public void AddItems(GoapResourceType type, List<T> items)
 	{
 		lock (_worldResourcesLock)
 		{
-			ResourcesAmountByType.TryGetValue(type, out var itemsCount);
-			if (itemsCount == 0)
+			ResourcesAmountByType.TryGetValue(type, out var existingItems);
+			if (existingItems == null)
 			{
-				ResourcesAmountByType.Add(type, amount);
+				ResourcesAmountByType.Add(type, items);
 			}
 			else
 			{
-				ResourcesAmountByType[type] += amount;
+				ResourcesAmountByType[type].AddRange(items);
 			}
 		}
 	}
 
-	public void RemoveItems(GoapResourceType type, int amount)
+	public void RemoveItems(GoapResourceType type, List<T> items)
 	{
 		lock (_worldResourcesLock)
 		{
-			if (!ResourcesAmountByType.TryGetValue(type, out var itemsCount))
+			if (!ResourcesAmountByType.TryGetValue(type, out var existingItems))
 				return;
 			
-			if (itemsCount == 0)
+			if (existingItems == null)
 				return;
 			
-			ResourcesAmountByType[type] -= amount;
+			ResourcesAmountByType[type].AddRange(items);
 		}
 	}
 }

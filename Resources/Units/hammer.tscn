@@ -9,7 +9,7 @@ GoapResourceType = 1
 metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [node name="Hammer" type="Sprite3D"]
-offset = Vector2(-110, 40)
+offset = Vector2(0, 40)
 pixel_size = 0.002
 billboard = 2
 double_sided = false
