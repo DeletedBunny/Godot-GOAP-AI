@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dek5otdgkkjcn"]
+[gd_scene load_steps=13 format=3 uid="uid://dek5otdgkkjcn"]
 
 [ext_resource type="PackedScene" uid="uid://bl1ellmlvn8nf" path="res://Resources/Tiles/grid_map.tscn" id="1_7stv3"]
 [ext_resource type="Script" uid="uid://vaveul5a18nk" path="res://Source/World/WorldLoaded.cs" id="1_f605k"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cfoa214q5a61k" path="res://Resources/Nature/tree.tscn" id="6_v8pb2"]
 [ext_resource type="PackedScene" uid="uid://dtoqat0o33cxa" path="res://Resources/Units/axe.tscn" id="7_0qqtf"]
 [ext_resource type="PackedScene" uid="uid://c1x4jio8cxvx" path="res://Resources/Units/hammer.tscn" id="8_avntn"]
+[ext_resource type="PackedScene" uid="uid://cj64i8ms4h7lp" path="res://Resources/Units/agent.tscn" id="9_avntn"]
 
 [sub_resource type="Resource" id="Resource_v8pb2"]
 script = ExtResource("5_i6k88")
@@ -38,8 +39,9 @@ data = {
 transform = Transform3D(0.707107, -0.612372, 0.353553, 0, 0.5, 0.866025, -0.707107, -0.612372, 0.353553, 0, 0, 0)
 light_color = Color(1, 1, 0.705882, 1)
 
-[node name="GoapMainController" parent="." node_paths=PackedStringArray("_worldDataCollectionsNode") instance=ExtResource("4_djiav")]
+[node name="GoapMainController" parent="." node_paths=PackedStringArray("_worldDataCollectionsNode", "_agentsCollectionNode") instance=ExtResource("4_djiav")]
 _worldDataCollectionsNode = NodePath("../GoapWorldResourceCollection")
+_agentsCollectionNode = NodePath("../Agents")
 
 [node name="GoapWorldResourceCollection" type="Node" parent="."]
 
@@ -77,3 +79,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.82524, 1, -1.12257)
 
 [node name="Hammer" parent="GoapWorldResourceCollection/Items" instance=ExtResource("8_avntn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2.15065)
+
+[node name="Agents" type="Node" parent="."]
+
+[node name="Agent" parent="Agents" instance=ExtResource("9_avntn")]
+transform = Transform3D(-0.964088, 0, -0.26552, 0, 1, 0, 0.26552, 0, -0.964088, -6.62601, 1, -8.4094)

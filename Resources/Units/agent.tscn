@@ -1,15 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://cj64i8ms4h7lp"]
+[gd_scene load_steps=3 format=3 uid="uid://cj64i8ms4h7lp"]
 
 [ext_resource type="Texture2D" uid="uid://csnk4y507e2a8" path="res://Resources/source pictures/figure_villager.png" id="1_2pwvg"]
+[ext_resource type="Script" uid="uid://euqd3dofyemo" path="res://Source/Camera/AgentBillboardEffect.cs" id="1_poawc"]
 
 [node name="Agent" type="Node3D"]
+script = ExtResource("1_poawc")
 
 [node name="AgentSprite" type="Sprite3D" parent="."]
 offset = Vector2(0, 200)
-pixel_size = 0.005
-billboard = 2
+pixel_size = 0.002
 double_sided = false
 texture = ExtResource("1_2pwvg")
 
-[node name="LeftHand" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+[node name="LeftHand" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0.2, 0)

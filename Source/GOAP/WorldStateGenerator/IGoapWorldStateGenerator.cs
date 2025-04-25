@@ -1,10 +1,8 @@
-﻿using Godot;
-using GodotGOAPAI.Source.GOAP.Abstraction;
-using GodotGOAPAI.Source.GOAP.Models;
+﻿using GodotGOAPAI.Source.GOAP.Models;
 
 namespace GodotGOAPAI.Source.GOAP.WorldStateGenerator;
 
-public interface IGoapWorldStateGenerator
+public interface IGoapWorldStateGenerator<T, TReturn>
 {
-    GoapWorldStateModel GenerateWorldStateModel(IGameObject worldCollectionsRootNode);
+    GoapWorldStateModel<TReturn> GenerateWorldStateModel(T worldCollectionsRootNode);
 }
