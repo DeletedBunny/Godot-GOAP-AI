@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Godot;
-using GodotGOAPAI.Source.GOAP.Abstraction;
 
 namespace GodotGOAPAI.Source.GOAP.Models;
 

@@ -5,7 +5,7 @@ namespace GodotGOAPAI.Source.GOAP.Actions.Abstraction;
 
 public interface IGoapAction
 {
-    void Initialize(IGoapActionParams goapActionParams);
+    void Initialize(GoapActionParamsBase goapActionParams);
     int CalculateCost();
     bool IsActionPreconditionsValid();
     bool IsActionEffectsValid();

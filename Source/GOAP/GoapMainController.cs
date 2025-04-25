@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.EventBus;
-using GodotGOAPAI.Source.GOAP.Abstraction;
-using GodotGOAPAI.Source.GOAP.Actions.MoveTo;
-using GodotGOAPAI.Source.GOAP.Godot;
 using GodotGOAPAI.Source.GOAP.Godot.WorldStateGenerator;
 using GodotGOAPAI.Source.GOAP.Models;
 using GodotGOAPAI.Source.GOAP.WorldStateGenerator;
@@ -36,8 +33,7 @@ public partial class GoapMainController : Node
 
     private void OnWorldReady(IEvent _)
     {
-        var worldDataCollectionsGodotNode = new GameObject<Node>(_worldDataCollectionsNode);
-        CurrentWorldStateModel = _worldStateGenerator.GenerateWorldStateModel(worldDataCollectionsGodotNode);
+        CurrentWorldStateModel = _worldStateGenerator.GenerateWorldStateModel(_worldDataCollectionsNode);
     }
 
     private Node3D ClosestTreeTest(Node3D agent)
