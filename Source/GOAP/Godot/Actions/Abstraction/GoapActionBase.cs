@@ -1,7 +1,6 @@
-﻿using System;
-using Godot;
+﻿using Godot;
 
-namespace GodotGOAPAI.Source.GOAP.Actions.Abstraction;
+namespace GodotGOAPAI.Source.GOAP.Godot.Actions.Abstraction;
 
 public abstract class GoapActionBase : IGoapAction
 {
