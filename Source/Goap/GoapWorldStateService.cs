@@ -1,11 +1,11 @@
 using Godot;
 using GodotGOAPAI.Source.GOAP.Models;
 
-namespace GodotGOAPAI.Source.GOAP;
+namespace GodotGOAPAI.Source.Goap;
 
-public partial class GodotGoapWorldStateService : Node
+public partial class GoapWorldStateService : Node
 {
-    public static GodotGoapWorldStateService Instance { get; private set; }
+    public static GoapWorldStateService Instance { get; private set; }
 
     private readonly object _lock = new object();
     

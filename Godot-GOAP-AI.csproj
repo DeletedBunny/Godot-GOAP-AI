@@ -5,6 +5,6 @@
     <RootNamespace>GodotGOAPAI</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Source\GOAP\Planner\" />
+    <Folder Include="Source\Goap\Planner\" />
   </ItemGroup>
 </Project>

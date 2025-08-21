@@ -1,6 +1,6 @@
-using GodotGOAPAI.Source.GOAP.Godot.Actions.Abstraction;
+using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
-namespace GodotGOAPAI.Source.GOAP.Godot.Actions.CutTree;
+namespace GodotGOAPAI.Source.Goap.Actions.Cut_Tree;
 
 public class GoapActionCutTree : GoapActionBase
 {

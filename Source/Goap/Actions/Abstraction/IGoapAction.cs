@@ -1,4 +1,4 @@
-﻿namespace GodotGOAPAI.Source.GOAP.Godot.Actions.Abstraction;
+﻿namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
 public interface IGoapAction
 {

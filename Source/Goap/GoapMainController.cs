@@ -2,28 +2,27 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.EventBus;
-using GodotGOAPAI.Source.GOAP.Godot.WorldStateGenerator;
 using GodotGOAPAI.Source.GOAP.Models;
-using GodotGOAPAI.Source.GOAP.WorldStateGenerator;
+using GodotGOAPAI.Source.Goap.World_State_Generator;
 using GodotGOAPAI.Source.World;
 
-namespace GodotGOAPAI.Source.GOAP;
+namespace GodotGOAPAI.Source.Goap;
 
 public partial class GoapMainController : Node
 {
-    private readonly IGoapWorldStateGenerator<Node, Node3D> _worldStateGenerator;
+    private readonly IGoapWorldStateGenerator<Node3D> _worldStateGenerator;
     
     [Export] private Node _worldDataCollectionsNode;
     [Export] private Node _agentsCollectionNode;
 
-    private GoapMoveToAction _tempActionTest;
+    //private GoapMoveToAction _tempActionTest;
     private bool _start;
     
     public GoapWorldStateModel<Node3D> CurrentWorldStateModel { get; private set; }
 
     public GoapMainController()
     {
-        _worldStateGenerator = new GodotGoapWorldStateGenerator();
+        _worldStateGenerator = new GoapWorldStateGenerator<Node3D>();
     }
     
     public override void _Ready()
@@ -66,13 +65,13 @@ public partial class GoapMainController : Node
             var target = ClosestTreeTest(agent);
             if (target != null)
             {
-                _tempActionTest = new GoapMoveToAction();
-                _tempActionTest.Initialize(new GoapMoveToActionParams(target, agent, 3));
+                //_tempActionTest = new GoapMoveToAction();
+                //_tempActionTest.Initialize(new GoapMoveToActionParams(target, agent, 3));
             }
         }
         
-        if (!(_tempActionTest?.IsCompletedConditionMet() ?? true))
-            _tempActionTest.ExecuteAction((float)delta);
+        //if (!(_tempActionTest?.IsCompletedConditionMet() ?? true))
+            //_tempActionTest.ExecuteAction((float)delta);
     }
 
     public override void _ExitTree()
