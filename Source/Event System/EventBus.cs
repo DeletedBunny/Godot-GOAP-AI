@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-namespace GodotGOAPAI.Source.EventBus;
+namespace GodotGOAPAI.Source.Event_System;
 
 public partial class EventBus : Node, IEventBus
 {

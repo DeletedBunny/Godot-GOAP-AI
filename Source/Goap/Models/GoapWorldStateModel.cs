@@ -1,33 +1,34 @@
 using System;
 using System.Collections.Generic;
+using Godot;
 
 namespace GodotGOAPAI.Source.GOAP.Models;
 
-public class GoapWorldStateModel<T>
+public class GoapWorldStateModel<TNode> where TNode : Node
 {
 	private readonly object _worldResourcesLock = new object();
 	
-	public Dictionary<GoapResourceType, List<T>> ResourcesAmountByType { get; private set; }
+	public Dictionary<GoapResourceType, List<TNode>> ResourcesAmountByType { get; private set; }
 
-	public GoapWorldStateModel(Dictionary<GoapResourceType, List<T>> resourcesAmountByType)
+	public GoapWorldStateModel(Dictionary<GoapResourceType, List<TNode>> resourcesAmountByType)
 	{
 		ResourcesAmountByType = resourcesAmountByType;
 	}
 
-	public GoapWorldStateModel<T> WithEmptyInitialization()
+	public GoapWorldStateModel<TNode> WithEmptyInitialization()
 	{
 		foreach (var type in Enum.GetValues<GoapResourceType>())
 		{
 			if(ResourcesAmountByType.ContainsKey(type))
 				continue;
 			
-			AddItems(type, new List<T>());
+			AddItems(type, new List<TNode>());
 		}
 		
 		return this;
 	}
 	
-	public void AddItems(GoapResourceType type, List<T> items)
+	public void AddItems(GoapResourceType type, List<TNode> items)
 	{
 		lock (_worldResourcesLock)
 		{
@@ -43,7 +44,7 @@ public class GoapWorldStateModel<T>
 		}
 	}
 
-	public void RemoveItems(GoapResourceType type, List<T> items)
+	public void RemoveItems(GoapResourceType type, List<TNode> items)
 	{
 		lock (_worldResourcesLock)
 		{

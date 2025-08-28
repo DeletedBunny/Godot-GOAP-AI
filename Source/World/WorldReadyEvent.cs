@@ -1,4 +1,4 @@
-﻿using GodotGOAPAI.Source.EventBus;
+﻿using GodotGOAPAI.Source.Event_System;
 
 namespace GodotGOAPAI.Source.World;
 
