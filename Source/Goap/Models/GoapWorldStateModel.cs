@@ -9,6 +9,7 @@ public class GoapWorldStateModel<TNode> where TNode : Node
 	private readonly object _worldResourcesLock = new object();
 	
 	public Dictionary<GoapResourceType, List<TNode>> ResourcesAmountByType { get; private set; }
+	public List<TNode> AgentsList { get; private set; }
 
 	public GoapWorldStateModel(Dictionary<GoapResourceType, List<TNode>> resourcesAmountByType)
 	{

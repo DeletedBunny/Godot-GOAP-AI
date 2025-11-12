@@ -26,7 +26,7 @@ public partial class GoapMainController : Node
 
 	private void OnWorldReady(IEvent _)
 	{
-		GoapWorldStateService.Instance.GenerateWorldState(_worldDataCollectionsNode);
+		GoapWorldStateService.Instance.GenerateWorldState(_worldDataCollectionsNode, _agentsCollectionNode);
 	}
 
 	public override void _Process(double delta)

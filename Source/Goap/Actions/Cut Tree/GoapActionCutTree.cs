@@ -10,7 +10,7 @@ public class GoapActionCutTree : GoapActionBase
     
     public override bool IsActionPreconditionsValid()
     {
-        throw new System.NotImplementedException();
+        GoapWorldStateService.Instance.CurrentWorldStateModel.
     }
 
     public override bool IsActionEffectsValid()

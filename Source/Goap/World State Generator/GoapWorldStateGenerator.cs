@@ -9,7 +9,7 @@ namespace GodotGOAPAI.Source.Goap.World_State_Generator;
 
 public class GoapWorldStateGenerator<TNode> : IGoapWorldStateGenerator<TNode> where TNode : Node
 {
-    public GoapWorldStateModel<TNode> GenerateWorldStateModel(Node worldCollectionsRootNode)
+    public GoapWorldStateModel<TNode> GenerateWorldStateModel(Node worldCollectionsRootNode, Node agentCollectionsRootNode)
     {
         var resourcesAmountByType = new Dictionary<GoapResourceType, List<TNode>>();
         AddStaticWorldResourcesToDictionary(worldCollectionsRootNode, resourcesAmountByType);

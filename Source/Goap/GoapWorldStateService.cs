@@ -24,9 +24,9 @@ public partial class GoapWorldStateService : Node
         Instance = this;
     }
 
-    public void GenerateWorldState(Node worldCollectionsRootNode)
+    public void GenerateWorldState(Node worldCollectionsRootNode, Node agentCollectionsRootNode)
     {
-        CurrentWorldStateModel = _worldStateGenerator.GenerateWorldStateModel(worldCollectionsRootNode);
+        CurrentWorldStateModel = _worldStateGenerator.GenerateWorldStateModel(worldCollectionsRootNode, agentCollectionsRootNode);
     }
 
     public Node3D GetClosestElementByType(GoapResourceType resourceType, Node3D agent)
