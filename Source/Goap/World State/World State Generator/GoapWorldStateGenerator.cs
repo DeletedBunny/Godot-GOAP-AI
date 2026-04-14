@@ -5,7 +5,7 @@ using Godot;
 using GodotGOAPAI.Source.Goap.Custom_Resource;
 using GodotGOAPAI.Source.GOAP.Models;
 
-namespace GodotGOAPAI.Source.Goap.World_State_Generator;
+namespace GodotGOAPAI.Source.Goap.World_State.World_State_Generator;
 
 public class GoapWorldStateGenerator<TNode> : IGoapWorldStateGenerator<TNode> where TNode : Node
 {

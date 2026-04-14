@@ -4,7 +4,4 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>GodotGOAPAI</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Source\Goap\Planner\" />
-  </ItemGroup>
 </Project>
