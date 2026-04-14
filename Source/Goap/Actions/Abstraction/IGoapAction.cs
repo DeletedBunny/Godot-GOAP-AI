@@ -1,0 +1,11 @@
+﻿namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
+
+public interface IGoapAction
+{
+    void Initialize(GoapActionParamsBase goapActionParams);
+    int CalculateCost();
+    bool IsActionPreconditionsValid();
+    bool IsActionEffectsValid();
+    void ExecuteAction(float deltaTime);
+    bool IsCompletedConditionMet();
+}
