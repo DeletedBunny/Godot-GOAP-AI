@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using GodotGOAPAI.Source.GOAP.Models;
 
-namespace GodotGOAPAI.Source.GOAP.Models;
+namespace GodotGOAPAI.Source.Goap.World_State.World_State_Models;
 
 public class GoapWorldStateModel<TNode> where TNode : Node
 {
@@ -57,5 +58,16 @@ public class GoapWorldStateModel<TNode> where TNode : Node
 			
 			ResourcesAmountByType[type].AddRange(items);
 		}
+	}
+
+	public GoapWorldStateModel<TNode> GetCopy()
+	{
+		var resourcesAmountByType = new Dictionary<GoapResourceType, List<TNode>>();
+		foreach (var resourceType in ResourcesAmountByType)
+		{
+			resourcesAmountByType.Add(resourceType.Key, new List<TNode>(resourceType.Value));
+		}
+		var worldStateCopy = new GoapWorldStateModel<TNode>(resourcesAmountByType).WithEmptyInitialization();
+		return worldStateCopy;
 	}
 }

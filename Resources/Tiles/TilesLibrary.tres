@@ -1,4 +1,4 @@
-[gd_resource type="MeshLibrary" load_steps=26 format=4 uid="uid://co7dait7w6wlc"]
+[gd_resource type="MeshLibrary" format=4 uid="uid://co7dait7w6wlc"]
 
 [ext_resource type="Texture2D" uid="uid://dhsg0cmycahkm" path="res://Resources/Textures/hexagons_medieval.png" id="1_y42at"]
 

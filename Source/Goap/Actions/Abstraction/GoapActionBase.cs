@@ -1,4 +1,6 @@
 ﻿using Godot;
+using GodotGOAPAI.Source.GOAP.Models;
+using GodotGOAPAI.Source.Goap.World_State.World_State_Models;
 
 namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
@@ -13,7 +15,7 @@ public abstract class GoapActionBase : IGoapAction
     
     protected abstract float DistanceCostMultiplier { get; }
     protected abstract float TimeCostMultiplier { get; }
-    protected abstract float TimeCost { get; }
+    protected abstract float TimeCostInSeconds { get; }
 
     public virtual void Initialize(GoapActionParamsBase actionParams)
     {
@@ -25,11 +27,12 @@ public abstract class GoapActionBase : IGoapAction
     
     public virtual int CalculateCost()
     {
-        return (int)(DistanceCostMultiplier * _distanceCost + TimeCostMultiplier * TimeCost);
+        return (int)(DistanceCostMultiplier * _distanceCost + TimeCostMultiplier * TimeCostInSeconds);
     }
 
-    public abstract bool IsActionPreconditionsValid();
-    public abstract bool IsActionEffectsValid();
+    public abstract bool IsActionPreconditionsValid(Node3D agent, GoapWorldStateMemento<Node3D> worldStateMemento,
+        GoapActionResult actionResult);
+    public abstract GoapActionResult GetActionResult();
 
     public virtual void ExecuteAction(float deltaTime)
     {

@@ -6,7 +6,7 @@ namespace GodotGOAPAI.Source.Goap.Planner;
 
 public class GoapPlanner
 {
-    [Export] private readonly IGoapWorldStateService _worldStateService = GoapGoapWorldStateService.Instance;
+    [Export] private readonly IGoapWorldStateService _worldStateService = GoapWorldStateService.Instance;
     private readonly IGoapActionsManager _goapActionsManager = new GoapActionsManager();
     
     public GoapPlanner()

@@ -62,4 +62,9 @@ public partial class EventBus : Node, IEventBus
 			}
 		}
 	}
+	
+	public void SendEvent<T>() where T : IEvent
+	{
+		SendEvent(Activator.CreateInstance<T>());
+	}
 }
