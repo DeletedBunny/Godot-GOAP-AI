@@ -22,7 +22,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 EventBus="*res://Source/Event System/EventBus.cs"
-GoapWorldStateService="*res://Source/Goap/GoapWorldStateService.cs"
+GoapWorldStateService="*uid://nffqtjv73no"
 
 [display]
 
