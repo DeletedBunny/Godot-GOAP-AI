@@ -1,16 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://cj64i8ms4h7lp"]
+[gd_scene format=3 uid="uid://cj64i8ms4h7lp"]
 
 [ext_resource type="Texture2D" uid="uid://csnk4y507e2a8" path="res://Resources/source pictures/figure_villager.png" id="1_2pwvg"]
+[ext_resource type="Script" uid="uid://bcmbt22dmsb2n" path="res://Source/GOAP/Agent/Agent3D.cs" id="1_dsu7i"]
 [ext_resource type="Script" uid="uid://euqd3dofyemo" path="res://Source/Camera/AgentBillboardEffect.cs" id="1_poawc"]
 
-[node name="Agent" type="Node3D"]
+[node name="Agent" type="Node3D" unique_id=1281332097 node_paths=PackedStringArray("_handPositionNode")]
+transform = Transform3D(0.87758255, 0, 0.47942555, 0, 1, 0, -0.47942555, 0, 0.87758255, 0, 0, 0)
+script = ExtResource("1_dsu7i")
+_handPositionNode = NodePath("Node3D/LeftHand")
+
+[node name="Node3D" type="Node3D" parent="." unique_id=1872027471]
+transform = Transform3D(0.8503665, 0, -0.52618307, 0, 1, 0, 0.52618307, 0, 0.8503665, 0, 0, 0)
 script = ExtResource("1_poawc")
 
-[node name="AgentSprite" type="Sprite3D" parent="."]
+[node name="AgentSprite" type="Sprite3D" parent="Node3D" unique_id=1701872421]
 offset = Vector2(0, 200)
 pixel_size = 0.002
 double_sided = false
 texture = ExtResource("1_2pwvg")
 
-[node name="LeftHand" type="Marker3D" parent="."]
+[node name="LeftHand" type="Marker3D" parent="Node3D" unique_id=921009468]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0.2, 0)
