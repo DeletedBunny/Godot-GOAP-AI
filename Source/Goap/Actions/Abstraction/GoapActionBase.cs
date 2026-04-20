@@ -1,48 +1,46 @@
-﻿using Godot;
-using GodotGOAPAI.Source.GOAP.Models;
-using GodotGOAPAI.Source.Goap.World_State.World_State_Models;
+﻿using System;
+using Godot;
+using GodotGOAPAI.Source.Goap.Actions.ActionData;
+using GodotGOAPAI.Source.Goap.Agent;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
 namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
 public abstract class GoapActionBase : IGoapAction
 {
-    private readonly Vector3 _reachedPositionThreshold = new Vector3(0.2f, 0.2f, 0.2f);
-    
-    private float _distanceCost;
-    private Node3D _target;
-    private Node3D _agent;
-    private int _agentMoveSpeed;
-    
-    protected abstract float DistanceCostMultiplier { get; }
-    protected abstract float TimeCostMultiplier { get; }
-    protected abstract float TimeCostInSeconds { get; }
+    protected GoapActionDataComponent ActionData;
+    protected Node3D Target { get; set; }
+    protected Agent3D Agent { get; set; }
 
-    public virtual void Initialize(GoapActionParamsBase actionParams)
+    public virtual void Initialize(GoapActionParams actionParams)
     {
-        _target = actionParams.Target;
-        _agent = actionParams.Agent;
-        _agentMoveSpeed = actionParams.AgentMoveSpeed;
-        _distanceCost = _agent.GlobalPosition.DistanceSquaredTo(_target.GlobalPosition);
-    }
-    
-    public virtual int CalculateCost()
-    {
-        return (int)(DistanceCostMultiplier * _distanceCost + TimeCostMultiplier * TimeCostInSeconds);
+        ActionData = new GoapActionDataComponent();
+        Agent = actionParams.Agent;
     }
 
-    public abstract bool IsActionPreconditionsValid(Node3D agent, GoapWorldStateMemento<Node3D> worldStateMemento,
+    public int CalculateCost()
+    {
+        return ActionData.CalculatedCost;
+    }
+
+    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
         GoapActionResult actionResult);
     public abstract GoapActionResult GetActionResult();
 
-    public virtual void ExecuteAction(float deltaTime)
+    public virtual void ExecuteAction(double deltaTime)
     {
-        var moveDirection = _agent.GlobalPosition.DirectionTo(_target.GlobalPosition);
-        _agent.GlobalTranslate(_agentMoveSpeed * moveDirection * deltaTime);
+        if (Target == null)
+        {
+            throw new Exception("Target is null and action is not completed yet, breaking...");
+        }
+        
+        Agent.MoveTo(Target, deltaTime);
     }
 
-    public virtual bool IsCompletedConditionMet()
+    protected bool ReachedTarget()
     {
-        var positionDifference = _agent.GlobalPosition - _target.GlobalPosition;
-        return positionDifference.Abs() <= _reachedPositionThreshold;
+        return Agent.ReachedPosition(Target);
     }
+
+    public abstract bool IsCompletedConditionMet();
 }

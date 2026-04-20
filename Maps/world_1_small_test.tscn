@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://vaveul5a18nk" path="res://Source/World/WorldLoaded.cs" id="1_f605k"]
 [ext_resource type="PackedScene" uid="uid://bvf77qib5vaae" path="res://Resources/Camera/camera_3d.tscn" id="2_s51uc"]
 [ext_resource type="PackedScene" uid="uid://bolqb62b7oj2" path="res://Resources/GOAPHelpers/goap_main_controller.tscn" id="4_djiav"]
-[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/Goap/Custom Resource/GoapResource.cs" id="5_i6k88"]
+[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/Goap/CustomResource/GoapResource.cs" id="5_i6k88"]
 [ext_resource type="PackedScene" uid="uid://cfoa214q5a61k" path="res://Resources/Nature/tree.tscn" id="6_v8pb2"]
 [ext_resource type="PackedScene" uid="uid://dtoqat0o33cxa" path="res://Resources/Units/axe.tscn" id="7_0qqtf"]
 [ext_resource type="PackedScene" uid="uid://c1x4jio8cxvx" path="res://Resources/Units/hammer.tscn" id="8_avntn"]
@@ -12,17 +12,17 @@
 
 [sub_resource type="Resource" id="Resource_v8pb2"]
 script = ExtResource("5_i6k88")
-GoapResourceType = 4
+EntityType = 4
 metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [sub_resource type="Resource" id="Resource_sgeoj"]
 script = ExtResource("5_i6k88")
-GoapResourceType = 5
+EntityType = 5
 metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [sub_resource type="Resource" id="Resource_0qqtf"]
 script = ExtResource("5_i6k88")
-GoapResourceType = 6
+EntityType = 6
 metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [node name="World_1_Small_Test" type="Node" unique_id=1565997155]
@@ -83,4 +83,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2.15065)
 [node name="Agents" type="Node" parent="." unique_id=1037397417]
 
 [node name="Agent" parent="Agents" unique_id=1490805152 instance=ExtResource("9_avntn")]
-transform = Transform3D(-0.27576467, 0, 0.9612067, 0, 1, 0, -0.9612067, 0, -0.27576467, -6.62601, 1, -8.4094)
+transform = Transform3D(0.87756693, 0, 0.479417, 0, 1, 0, -0.479417, 0, 0.87756693, -6.62601, 1, -8.4094)

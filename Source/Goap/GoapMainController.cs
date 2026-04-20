@@ -1,9 +1,9 @@
 using System;
 using Godot;
-using GodotGOAPAI.Source.Event_System;
+using GodotGOAPAI.Source.EventSystem;
+using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
-using GodotGOAPAI.Source.Goap.World_State;
-using GodotGOAPAI.Source.Goap.World_State.World_State_Events;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
 using GodotGOAPAI.Source.World;
 
 namespace GodotGOAPAI.Source.Goap;
@@ -35,19 +35,15 @@ public partial class GoapMainController : Node
 	{
 		if (Input.IsActionJustPressed("ui_up"))
 			_start = true;
-		
-		//if (_start && _agentsCollectionNode.GetChildren().FirstOrDefault() is Node3D agent)
+
+		if (_start)
 		{
-			//var target = GoapGoapWorldStateService.Instance.GetClosestElementByType(GoapResourceType.Tree, agent);
-			//if (target != null)
-			{
-				//_tempActionTest = new GoapMoveToAction();
-				//_tempActionTest.Initialize(new GoapMoveToActionParams(target, agent, 3));
-			}
+			var agent = _agentsCollectionNode.GetChild(0);
+			_planner.Plan(agent as Agent3D);
+			_start = false;
 		}
 		
-		//if (!(_tempActionTest?.IsCompletedConditionMet() ?? true))
-			//_tempActionTest.ExecuteAction((float)delta);
+		_planner.Execute(delta);
 	}
 
 	public override void _ExitTree()
