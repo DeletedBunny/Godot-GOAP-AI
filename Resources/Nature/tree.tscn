@@ -58,9 +58,10 @@ _data = {
 &"shake": SubResource("Animation_y2gly")
 }
 
-[node name="Tree" type="Node3D" unique_id=895995583 node_paths=PackedStringArray("_animationPlayer")]
+[node name="Tree" type="Node3D" unique_id=895995583 node_paths=PackedStringArray("_animationPlayer", "_treeSprite3D")]
 script = ExtResource("6_seq7i")
 _animationPlayer = NodePath("AnimationPlayer")
+_treeSprite3D = NodePath("AnimatedSprite3D")
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=611018488]
 offset = Vector2(0, 155)

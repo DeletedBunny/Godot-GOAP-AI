@@ -6,16 +6,31 @@ namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
 public class GoapWorldStateMemento<TNode> where TNode : Node
 {
+    private const string TrackedWorldStateModifier = "InWorld";
     private readonly GoapWorldStateModel<TNode> _worldStateModel;
-    private readonly Dictionary<EntityType, List<TNode>> _removedResources = new Dictionary<EntityType, List<TNode>>();
-    private readonly Dictionary<EntityType, List<TNode>> _addedResources = new Dictionary<EntityType, List<TNode>>();
+    private readonly Dictionary<EntityType, List<TNode>> _removedResources = new();
+    private readonly Dictionary<EntityType, List<TNode>> _addedResources = new();
+    private readonly Dictionary<string, int> _trackedWorldStates = new();
     
     public bool IsWorldStateModified { get; private set; }
     
     public GoapWorldStateMemento(GoapWorldStateModel<TNode> worldStateModel)
     {
         _worldStateModel = worldStateModel;
+        GenerateTrackedWorldStates();
     }
+
+    private void GenerateTrackedWorldStates()
+    {
+        _trackedWorldStates.Clear();
+        foreach (var resourceInWorld in _worldStateModel.ResourcesAmountByType)
+        {
+            SetTrackedState(resourceInWorld.Key.ToString(), resourceInWorld.Value.Count);
+        }
+    }
+    
+    public int GetTrackedState(string key) => _trackedWorldStates.GetValueOrDefault(key + TrackedWorldStateModifier, 0);
+    public void SetTrackedState(string key, int value) => _trackedWorldStates[key + TrackedWorldStateModifier] = value;
 
     public void ApplyModificationsToWorldState()
     {
@@ -47,6 +62,8 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
             {
                 _removedResources.Add(entityType, nodes);
             }
+            var newValue = GetTrackedState(entityType.ToString()) - nodes.Count;
+            SetTrackedState(entityType.ToString(), newValue);
         }
         else
         {
@@ -58,6 +75,9 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
             {
                 _addedResources.Add(entityType, nodes);
             }
+
+            var newValue = GetTrackedState(entityType.ToString()) + nodes.Count;
+            SetTrackedState(entityType.ToString(), newValue);
         }
     }
     
@@ -103,6 +123,8 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
     // doubt there will be another base positional node since we can't perceive higher than 3D.
     public TNode GetClosestElementByType(EntityType entityType, TNode agent)
     {
+        if (entityType == EntityType.Unknown)
+            return null;
         _worldStateModel.ResourcesAmountByType.TryGetValue(entityType, out var resourceNodes);
 		var resourceWithModifiedNodes = new List<TNode>();
         
@@ -161,5 +183,8 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
         {
             _worldStateModel.AddItems(key, removedResourceNodes);
         }
+        
+        GenerateTrackedWorldStates();
+        IsWorldStateModified = false;
     }
 }

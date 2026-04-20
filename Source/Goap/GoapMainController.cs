@@ -1,6 +1,8 @@
 using System;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
+using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
@@ -39,7 +41,9 @@ public partial class GoapMainController : Node
 		if (_start)
 		{
 			var agent = _agentsCollectionNode.GetChild(0);
-			_planner.Plan(agent as Agent3D);
+			var goal = new GoapActionEffectComponent();
+			goal.AddActionResult("log", 4);
+			_planner.Plan(agent as Agent3D, goal);
 			_start = false;
 		}
 		

@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.Goap.CustomResource;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.GodotHelpers;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateGenerator;
@@ -22,7 +23,7 @@ public class GoapWorldStateGenerator<TNode> : IGoapWorldStateGenerator<TNode> wh
     {
         foreach (var collection in worldCollectionsRootNode.GetChildren())
         {
-            if (collection.GetMeta("GoapResourceType").Obj is not GoapResource resourceType)
+            if (collection.GetMetaData(GoapResource.Name) is not GoapResource resourceType)
                 continue;
             
             var nodes = collection.GetChildren().OfType<TNode>().ToList();
@@ -40,7 +41,7 @@ public class GoapWorldStateGenerator<TNode> : IGoapWorldStateGenerator<TNode> wh
             
             var resourcesByType = itemsNode.GetChildren().OfType<TNode>().Where(node =>
             {
-                if (node.GetMeta("GoapResourceType").Obj is not GoapResource resourceType)
+                if (node.GetMetaData(GoapResource.Name) is not GoapResource resourceType)
                     throw new Exception("GoapResourceType metadata not found on node - " + node.Name);
 
                 return resourceType.EntityType == type;

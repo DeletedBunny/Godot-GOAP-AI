@@ -8,45 +8,30 @@ using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 
+[GoapAction(GoapActionType.CutTree)]
 public class GoapActionCutTree : GoapActionBase
 {
-    public override void Initialize(GoapActionParams actionParams)
-    {
-        base.Initialize(actionParams);
-        ActionData.DistanceCostMultiplier = 1;
-        ActionData.TimeCostMultiplier = 1;
-        ActionData.TimeCostInSeconds = 5;
-    }
-
     public override bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
-        GoapActionResult actionResult)
+        IGoapAction previousAction)
     {
-        var isTreeInWorld = worldStateMemento.GetResource(EntityType.Tree).Count > 0;
-        var isAxeAsResult = actionResult.GetActionResults().FirstOrDefault(x => x.Key == "axe").Value > 0;
+        var isTreeInWorld = worldStateMemento.GetTrackedState(nameof(EntityType.Tree)) > 0;
+        var previousActionResults = previousAction?.ActionEffects.Effects;
+        var isAxeAsResult = previousActionResults?.FirstOrDefault(x => x.Key == "hasAxe").Value > 0;
         var isAxeOnAgent = Agent.HasEntityTypeInHand(EntityType.Axe);
 
-        if (isTreeInWorld && (isAxeAsResult || isAxeOnAgent))
+        var success = InitializeTarget(worldStateMemento, previousAction?.GetTarget(), EntityType.Tree, isTreeInWorld && (isAxeAsResult || isAxeOnAgent));
+        if (success)
         {
-            var closestNode = worldStateMemento.GetClosestElementByType(EntityType.Tree, Agent);
-            Target = closestNode;
-            worldStateMemento.AddModifiedResource(EntityType.Tree, [closestNode], true);
+            worldStateMemento.AddModifiedResource(EntityType.Tree, [Target], true);
         }
         
         return isTreeInWorld && (isAxeAsResult || isAxeOnAgent);
     }
-    
-    public override GoapActionResult GetActionResult()
-    {
-        var actionResult = new GoapActionResult();
-        actionResult.AddActionResult("log", 2);
-        return actionResult;
-    }
 
     public override void ExecuteAction(double deltaTime)
     {
-        if (!ReachedTarget())
+        if (!IsNearPosition())
         {
-            base.ExecuteAction(deltaTime);
             return;
         }
         

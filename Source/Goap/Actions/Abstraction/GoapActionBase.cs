@@ -1,46 +1,61 @@
 ﻿using System;
 using Godot;
+using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
 public abstract class GoapActionBase : IGoapAction
 {
-    protected GoapActionDataComponent ActionData;
-    protected Node3D Target { get; set; }
-    protected Agent3D Agent { get; set; }
+    public GoapActionDataComponent ActionData { get; private set; }
+    public GoapActionPreconditionComponent ActionPreconditions { get; private set; }
+    public GoapActionEffectComponent ActionEffects { get; private set; }
+    protected Node3D Target { get; private set; }
+    protected Agent3D Agent { get; private set; }
 
-    public virtual void Initialize(GoapActionParams actionParams)
+    public void Initialize(
+        Agent3D agent, 
+        GoapActionDataComponent actionData, 
+        GoapActionPreconditionComponent actionPreconditions,
+        GoapActionEffectComponent actionEffects)
     {
-        ActionData = new GoapActionDataComponent();
-        Agent = actionParams.Agent;
+        ActionData = actionData;
+        ActionPreconditions = actionPreconditions;
+        ActionEffects = actionEffects;
+        Agent = agent;
     }
 
+    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
+        IGoapAction previousAction);
+    public abstract void ExecuteAction(double deltaTime);
+    public abstract bool IsCompletedConditionMet();
+
+    protected bool InitializeTarget(GoapWorldStateMemento<Node3D> worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
+    {
+        if (conditionToMeet)
+        {
+            var startNode = previousTarget ?? Agent;
+            var closestNode = worldStateMemento.GetClosestElementByType(entityType, startNode);
+            Target = closestNode;
+        }
+        return conditionToMeet;
+    }
+    
     public int CalculateCost()
     {
         return ActionData.CalculatedCost;
     }
-
-    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
-        GoapActionResult actionResult);
-    public abstract GoapActionResult GetActionResult();
-
-    public virtual void ExecuteAction(double deltaTime)
+    
+    public Node3D GetTarget()
     {
-        if (Target == null)
-        {
-            throw new Exception("Target is null and action is not completed yet, breaking...");
-        }
-        
-        Agent.MoveTo(Target, deltaTime);
+        return Target;
     }
-
-    protected bool ReachedTarget()
+    
+    protected bool IsNearPosition()
     {
-        return Agent.ReachedPosition(Target);
+        return Agent.IsNearPosition(Target);
     }
-
-    public abstract bool IsCompletedConditionMet();
 }
