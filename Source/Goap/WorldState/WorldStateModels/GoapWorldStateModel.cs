@@ -5,32 +5,32 @@ using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
-public class GoapWorldStateModel<TNode> where TNode : Node
+public class GoapWorldStateModel
 {
 	private readonly object _worldResourcesLock = new object();
 	
-	public Dictionary<EntityType, List<TNode>> ResourcesAmountByType { get; private set; }
-	public List<TNode> AgentsList { get; private set; }
+	public Dictionary<EntityType, List<Node3D>> ResourcesAmountByType { get; private set; }
+	public List<Node3D> AgentsList { get; private set; }
 
-	public GoapWorldStateModel(Dictionary<EntityType, List<TNode>> resourcesAmountByType)
+	public GoapWorldStateModel(Dictionary<EntityType, List<Node3D>> resourcesAmountByType)
 	{
 		ResourcesAmountByType = resourcesAmountByType;
 	}
 
-	public GoapWorldStateModel<TNode> WithEmptyInitialization()
+	public GoapWorldStateModel WithEmptyInitialization()
 	{
 		foreach (var type in Enum.GetValues<EntityType>())
 		{
 			if(ResourcesAmountByType.ContainsKey(type))
 				continue;
 			
-			AddItems(type, new List<TNode>());
+			AddItems(type, new List<Node3D>());
 		}
 		
 		return this;
 	}
 	
-	public void AddItems(EntityType itemType, List<TNode> items)
+	public void AddItems(EntityType itemType, List<Node3D> items)
 	{
 		lock (_worldResourcesLock)
 		{
@@ -46,7 +46,7 @@ public class GoapWorldStateModel<TNode> where TNode : Node
 		}
 	}
 
-	public void RemoveItems(EntityType itemType, List<TNode> items)
+	public void RemoveItems(EntityType itemType, List<Node3D> items)
 	{
 		lock (_worldResourcesLock)
 		{
@@ -60,14 +60,14 @@ public class GoapWorldStateModel<TNode> where TNode : Node
 		}
 	}
 
-	public GoapWorldStateModel<TNode> GetCopy()
+	public GoapWorldStateModel GetCopy()
 	{
-		var resourcesAmountByType = new Dictionary<EntityType, List<TNode>>();
+		var resourcesAmountByType = new Dictionary<EntityType, List<Node3D>>();
 		foreach (var resourceType in ResourcesAmountByType)
 		{
-			resourcesAmountByType.Add(resourceType.Key, new List<TNode>(resourceType.Value));
+			resourcesAmountByType.Add(resourceType.Key, new List<Node3D>(resourceType.Value));
 		}
-		var worldStateCopy = new GoapWorldStateModel<TNode>(resourcesAmountByType).WithEmptyInitialization();
+		var worldStateCopy = new GoapWorldStateModel(resourcesAmountByType).WithEmptyInitialization();
 		return worldStateCopy;
 	}
 }

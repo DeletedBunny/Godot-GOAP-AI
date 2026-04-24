@@ -7,4 +7,9 @@ public class GoapActionPreconditionComponent
 {
     public EntityType RequiredEntity { get; set; } = EntityType.None;
     public List<KeyValuePair<string, int>> Preconditions { get; init; }
+    
+    public bool NeedsEntityNearby()
+    {
+        return RequiredEntity != EntityType.None;
+    }
 }

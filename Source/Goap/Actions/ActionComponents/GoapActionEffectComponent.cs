@@ -7,13 +7,13 @@ public class GoapActionEffectComponent
 {
     public List<KeyValuePair<string, int>> Effects { get; init; }
 
-    public bool ContainsEffect(string actionResultKey)
+    public bool ContainsEffect(string actionKey)
     {
-        return Effects.Any(item => item.Key == actionResultKey);
+        return Effects.Any(item => item.Key.Equals(actionKey));
     }
 
-    public List<KeyValuePair<string, int>> GetMatchingEffects(params string[] actionResultKeys)
+    public List<KeyValuePair<string, int>> GetMatchingEffects(params string[] actionKeys)
     {
-        return Effects.Where(item => actionResultKeys.Contains(item.Key)).ToList();
+        return Effects.Where(item => actionKeys.Contains(item.Key)).ToList();
     }
 }

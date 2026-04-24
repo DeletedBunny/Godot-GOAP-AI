@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
@@ -41,8 +42,9 @@ public partial class GoapMainController : Node
 		if (_start)
 		{
 			var agent = _agentsCollectionNode.GetChild(0);
-			var goal = new GoapActionEffectComponent();
-			goal.AddActionResult("log", 4);
+			var goal = new GoapActionPreconditionComponent() { Preconditions = [
+				new("log", 2)
+			] };
 			_planner.Plan(agent as Agent3D, goal);
 			_start = false;
 		}

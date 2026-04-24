@@ -7,6 +7,7 @@ using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 using GodotGOAPAI.Source.Goap.Agent;
+using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
@@ -32,7 +33,7 @@ public class GoapActionsFactory : IGoapActionsFactory
                 TimeCostInSeconds = 5,
             })
             .AddRequiredLocationType(EntityType.Tree)
-            .AddPrecondition("hasAxe", 1)
+            .AddPrecondition("HasAxe", 1)
             .AddPrecondition("TreeInWorld", 1)
             .AddPrecondition("NearTree", 1)
             .AddEffect("LogInWorld", 2)
@@ -46,7 +47,7 @@ public class GoapActionsFactory : IGoapActionsFactory
             .AddRequiredLocationType(EntityType.Axe)
             .AddPrecondition("AxeInWorld", 1)
             .AddPrecondition("NearAxe", 1)
-            .AddEffect("hasAxe", 1)
+            .AddEffect("HasAxe", 1)
             .Build<GoapActionPickUpAxe>(this);
     }
 
@@ -64,17 +65,37 @@ public class GoapActionsFactory : IGoapActionsFactory
         return actionRegistration.CreateAction(agent);
     }
 
-    public List<(GoapActionType, GoapActionEffectComponent)> GetMatchingActions(string actionResultKey)
+    public List<GoapPlanningAction> GetMatchingActionsByEffect(string actionResultKey)
     {
         var actionMap = _goapActions.Where(item => 
                 item.Value.ActionEffects.ContainsEffect(actionResultKey))
-            .Select(item => (item.Key, item.Value.ActionEffects))
+            .Select(item => new GoapPlanningAction()
+            {
+                Type = item.Key,
+                EffectsComponent = item.Value.ActionEffects,
+                PreconditionsComponent = item.Value.ActionPreconditions,
+                RepeatCount = 0
+            })
             .ToList();
         
         if (actionMap.Count == 0)
             throw new Exception($"Action with result key {actionResultKey} not found");
         
         return actionMap;
+    }
+
+    public GoapPlanningAction GetMoveToAction(EntityType typeToMoveTo)
+    {
+        _goapActions.TryGetValue(GoapActionType.MoveTo, out var actionRegistration);
+        var planningAction = new GoapPlanningAction()
+        {
+            Type = GoapActionType.MoveTo,
+            EffectsComponent = actionRegistration.ActionEffects,
+            PreconditionsComponent = actionRegistration.ActionPreconditions,
+            RepeatCount = 1
+        };
+        planningAction.EffectsComponent.Effects.Add(new("Near" + typeToMoveTo, 1));
+        return planningAction;
     }
 
     public IGoapAction CreateAction<TAction>(

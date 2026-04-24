@@ -8,6 +8,8 @@ using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.Planner;
 
@@ -21,60 +23,71 @@ public class GoapPlanner
         _goapActionsFactory.RegisterActions();
     }
 
-    public void Plan(Agent3D agent, GoapActionEffectComponent neededEffectComponent)
+    public void Plan(Agent3D agent, GoapActionPreconditionComponent neededItemsToHave)
     {
         var worldStateMemento = GoapWorldStateService.Instance.GetWorldStateMemento();
+        var worldStatePlanningModel = new GoapWorldStatePlanningModel(worldStateMemento);
 
-        GoapPlanningLeaf root = new GoapPlanningLeaf(GoapActionType.PlanningTreeRoot, neededEffectComponent);
+        GoapPlanningLeaf root = new GoapPlanningLeaf(GoapActionType.PlanningTreeRoot, null, neededItemsToHave);
         GoapPlanningTree planningTree = new GoapPlanningTree(root);
-
-        List<IGoapAction> possibleSolutions;
         
-        foreach (var actionResult in  planningTree.Root.ActionEffectComponent.GetActionResults())
+        // Start planning
+        var unvisitedLeafs = new Queue<GoapPlanningLeaf>();
+        unvisitedLeafs.Enqueue(planningTree.Root);
+        while (unvisitedLeafs.Count > 0)
         {
-            var matchingActions = GetMatchingActionsWithAmount(actionResult);
-                
-            if (!matchingActions.Any()) 
-                continue;
-                
-            foreach (var action in matchingActions)
+            var currentLeaf = unvisitedLeafs.Dequeue();
+            
+            foreach (var precondition in currentLeaf.ActionPreconditionComponent.Preconditions)
             {
-                for (int i = 0; i < action.Item3; i++)
+                if (worldStatePlanningModel.GetTrackedState(precondition.Key) >= precondition.Value)
                 {
-                    planningTree.Root.AddChild(new GoapPlanningLeaf(action.Item1, action.Item2));
+                    continue;
+                }
+
+                if (currentLeaf.ActionPreconditionComponent.NeedsEntityNearby())
+                {
+                    var moveToAction = GetMoveToAction(currentLeaf.ActionPreconditionComponent.RequiredEntity);
+                    currentLeaf.MoveToActionLeaf = CreateLeaf(moveToAction);
+                }
+                
+                var matchingActions = GetMatchingActionsWithAmount(precondition);
+                
+                foreach (var action in matchingActions)
+                {
+                    var newLeaf = CreateLeaf(action);
+                    currentLeaf.AddChild(newLeaf);
+                    unvisitedLeafs.Enqueue(newLeaf);
                 }
             }
         }
         
-        
-        
-        
         // Hardcoded for now
-        var pickupAxe = _goapActionsFactory.GetAction(GoapActionType.PickUpAxe, new GoapActionParams(agent));
-        var cutTreeAction = _goapActionsFactory.GetAction(GoapActionType.CutTree, new GoapActionParams(agent));
-        pickupAxe.IsActionPreconditionsValid(worldStateMemento, null);
-        cutTreeAction.IsActionPreconditionsValid(worldStateMemento, pickupAxe);
+        //var pickupAxe = _goapActionsFactory.GetAction(GoapActionType.PickUpAxe, new GoapActionParams(agent));
+        //var cutTreeAction = _goapActionsFactory.GetAction(GoapActionType.CutTree, new GoapActionParams(agent));
+        //pickupAxe.IsActionPreconditionsValid(worldStateMemento, null);
+        //cutTreeAction.IsActionPreconditionsValid(worldStateMemento, pickupAxe);
         
-        _goapPlannerExecutionQueue.AddToQueue(cutTreeAction);
-        _goapPlannerExecutionQueue.AddToQueue(pickupAxe);
+        //_goapPlannerExecutionQueue.AddToQueue(cutTreeAction);
+        //_goapPlannerExecutionQueue.AddToQueue(pickupAxe);
+    }
+    
+    private GoapPlanningLeaf CreateLeaf(GoapPlanningAction action) => new(action.Type, action.EffectsComponent, action.PreconditionsComponent);
+
+    private List<GoapPlanningAction> GetMatchingActionsWithAmount(KeyValuePair<string, int> actionPrecondition)
+    {
+        var matchingActions = _goapActionsFactory.GetMatchingActionsByEffect(actionPrecondition.Key);
+        
+        matchingActions.ForEach(action =>
+        {
+            var effect = action.EffectsComponent.Effects.First(item => item.Key.Equals(actionPrecondition.Key));
+            action.RepeatCount = (int)Math.Ceiling(actionPrecondition.Value / (float)effect.Value);
+        });
+        
+        return matchingActions;
     }
 
-    private List<(GoapActionType, GoapActionEffectComponent, int)> GetMatchingActionsWithAmount(KeyValuePair<string, int> actionResult)
-    {
-        var matchingActions = _goapActionsFactory.GetMatchingActions(actionResult.Key);
-        var result = new List<(GoapActionType, GoapActionEffectComponent, int)>();
-        if (matchingActions.Count == 0)
-            return result;
-        
-        foreach (var action in matchingActions)
-        {
-            var matchingActionResult = action.Item2.GetActionResults().First(item => item.Key.Equals(actionResult.Key));
-            var actionTimesNeededToRepeat = (int)Math.Ceiling(actionResult.Value / (float)matchingActionResult.Value);
-            result.Add((action.Item1, action.Item2, actionTimesNeededToRepeat));
-        }
-        
-        return result;
-    }
+    private GoapPlanningAction GetMoveToAction(EntityType typeToMoveTo) => _goapActionsFactory.GetMoveToAction(typeToMoveTo);
     
     public void Execute(double deltaTime)
     {

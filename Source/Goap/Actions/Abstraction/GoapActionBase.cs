@@ -28,12 +28,12 @@ public abstract class GoapActionBase : IGoapAction
         Agent = agent;
     }
 
-    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
+    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento worldStateMemento,
         IGoapAction previousAction);
     public abstract void ExecuteAction(double deltaTime);
     public abstract bool IsCompletedConditionMet();
 
-    protected bool InitializeTarget(GoapWorldStateMemento<Node3D> worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
+    protected bool InitializeTarget(GoapWorldStateMemento worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
     {
         if (conditionToMeet)
         {

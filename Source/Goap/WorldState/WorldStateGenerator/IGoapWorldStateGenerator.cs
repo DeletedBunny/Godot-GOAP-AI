@@ -3,7 +3,7 @@ using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
 namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateGenerator;
 
-public interface IGoapWorldStateGenerator<TNode> where TNode : Node
+public interface IGoapWorldStateGenerator
 {
-    GoapWorldStateModel<TNode> GenerateWorldStateModel(Node worldCollectionsRootNode, Node agentCollectionsRootNode);
+    GoapWorldStateModel GenerateWorldStateModel(Node worldCollectionsRootNode, Node agentCollectionsRootNode);
 }

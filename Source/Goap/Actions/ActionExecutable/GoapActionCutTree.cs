@@ -11,12 +11,12 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.CutTree)]
 public class GoapActionCutTree : GoapActionBase
 {
-    public override bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
+    public override bool IsActionPreconditionsValid(GoapWorldStateMemento worldStateMemento,
         IGoapAction previousAction)
     {
-        var isTreeInWorld = worldStateMemento.GetTrackedState(nameof(EntityType.Tree)) > 0;
+        var isTreeInWorld = worldStateMemento.GetResource(EntityType.Tree).Count > 0;
         var previousActionResults = previousAction?.ActionEffects.Effects;
-        var isAxeAsResult = previousActionResults?.FirstOrDefault(x => x.Key == "hasAxe").Value > 0;
+        var isAxeAsResult = previousActionResults?.FirstOrDefault(x => x.Key == "HasAxe").Value > 0;
         var isAxeOnAgent = Agent.HasEntityTypeInHand(EntityType.Axe);
 
         var success = InitializeTarget(worldStateMemento, previousAction?.GetTarget(), EntityType.Tree, isTreeInWorld && (isAxeAsResult || isAxeOnAgent));
