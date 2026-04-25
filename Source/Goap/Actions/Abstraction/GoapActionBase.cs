@@ -10,9 +10,20 @@ namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
 public abstract class GoapActionBase : IGoapAction
 {
-    public GoapActionDataComponent ActionData { get; private set; }
-    public GoapActionPreconditionComponent ActionPreconditions { get; private set; }
-    public GoapActionEffectComponent ActionEffects { get; private set; }
+    public GoapActionType Type
+    {
+        get
+        {
+            var attribute = Attribute.GetCustomAttribute(GetType(), typeof(GoapActionAttribute));
+            if (attribute is GoapActionAttribute goapActionAttribute)
+                return goapActionAttribute.Type;
+            return GoapActionType.Unknown;
+        }
+    }
+
+    public GoapActionDataComponent ActionDataComponent { get; private set; }
+    public GoapActionPreconditionComponent ActionPreconditionsComponent { get; private set; }
+    public GoapActionEffectComponent ActionEffectsComponent { get; private set; }
     protected Node3D Target { get; private set; }
     protected Agent3D Agent { get; private set; }
 
@@ -22,18 +33,18 @@ public abstract class GoapActionBase : IGoapAction
         GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
     {
-        ActionData = actionData;
-        ActionPreconditions = actionPreconditions;
-        ActionEffects = actionEffects;
+        ActionDataComponent = actionData;
+        ActionPreconditionsComponent = actionPreconditions;
+        ActionEffectsComponent = actionEffects;
         Agent = agent;
     }
 
-    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento worldStateMemento,
+    public abstract bool InitializeTarget(GoapWorldStateMemento worldStateMemento,
         IGoapAction previousAction);
     public abstract void ExecuteAction(double deltaTime);
     public abstract bool IsCompletedConditionMet();
 
-    protected bool InitializeTarget(GoapWorldStateMemento worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
+    protected bool InitializeTargetInternal(GoapWorldStateMemento worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
     {
         if (conditionToMeet)
         {
@@ -46,7 +57,7 @@ public abstract class GoapActionBase : IGoapAction
     
     public int CalculateCost()
     {
-        return ActionData.CalculatedCost;
+        return ActionDataComponent.CalculatedCost;
     }
     
     public Node3D GetTarget()

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
@@ -79,5 +80,10 @@ public class AgentInventory
     public bool HasItem(EntityType entityType, int requiredAmount = 1)
     {
         return _inventory.ContainsKey(entityType) && _inventory[entityType] >= requiredAmount;
+    }
+
+    public List<(string, int)> GetInventoryState()
+    {
+        return _inventory.Select(item => (item.Key.ToString(), item.Value)).ToList();
     }
 }

@@ -40,7 +40,7 @@ public class GoapActionBuilder
         return this;
     }
 
-    public void Build<TAction>(GoapActionsFactory factory) where TAction : GoapActionBase, new()
+    public void Build<TAction>(GoapActionsFactory factory) where TAction : IGoapAction, new()
     {
         factory.AddAction(_actionType, new GoapActionRegistration(
             factory.CreateAction<TAction>,

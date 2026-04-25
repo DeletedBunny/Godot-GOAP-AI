@@ -6,6 +6,7 @@ using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
+using GodotGOAPAI.Source.Goap.Actions.ActionsFactory;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -19,6 +20,8 @@ public class GoapActionsFactory : IGoapActionsFactory
     // Use this like a factory, register all actions here once and then use them in the planner
     public void RegisterActions()
     {
+        GoapActionBuilder.Create(GoapActionType.PlanningTreeRoot)
+            .Build<GoapGoal>(this);
         GoapActionBuilder.Create(GoapActionType.MoveTo)
             .AddData(new()
             {
@@ -34,7 +37,7 @@ public class GoapActionsFactory : IGoapActionsFactory
             })
             .AddRequiredLocationType(EntityType.Tree)
             .AddPrecondition("HasAxe", 1)
-            .AddPrecondition("TreeInWorld", 1)
+            .AddPrecondition("Tree", 1)
             .AddPrecondition("NearTree", 1)
             .AddEffect("LogInWorld", 2)
             .Build<GoapActionCutTree>(this);
@@ -45,7 +48,7 @@ public class GoapActionsFactory : IGoapActionsFactory
                 TimeCostInSeconds = 2
             })
             .AddRequiredLocationType(EntityType.Axe)
-            .AddPrecondition("AxeInWorld", 1)
+            .AddPrecondition("Axe", 1)
             .AddPrecondition("NearAxe", 1)
             .AddEffect("HasAxe", 1)
             .Build<GoapActionPickUpAxe>(this);
@@ -58,11 +61,23 @@ public class GoapActionsFactory : IGoapActionsFactory
 
     public IGoapAction GetAction(GoapActionType type, Agent3D agent)
     {
+        if (type == GoapActionType.PlanningTreeRoot)
+            throw new Exception($"{type} action cannot be retrieved, use {nameof(GetGoal)} instead.");
+        
         var actionExists = _goapActions.TryGetValue(type, out var actionRegistration);
+        
         if (!actionExists)
             throw new Exception($"Action of type {type} not found");
         
         return actionRegistration.CreateAction(agent);
+    }
+
+    public IGoapAction GetGoal(GoapActionPreconditionComponent preconditionComponent)
+    {
+        var actionRegistration = _goapActions[GoapActionType.PlanningTreeRoot];
+        var actionInstance = actionRegistration.CreateAction(null);
+        actionInstance.Initialize(null, null, preconditionComponent, null);
+        return actionInstance;
     }
 
     public List<GoapPlanningAction> GetMatchingActionsByEffect(string actionResultKey)
@@ -84,18 +99,16 @@ public class GoapActionsFactory : IGoapActionsFactory
         return actionMap;
     }
 
-    public GoapPlanningAction GetMoveToAction(EntityType typeToMoveTo)
+    public IGoapAction GetMoveToAction(EntityType typeToMoveTo, Agent3D agent)
     {
         _goapActions.TryGetValue(GoapActionType.MoveTo, out var actionRegistration);
-        var planningAction = new GoapPlanningAction()
-        {
-            Type = GoapActionType.MoveTo,
-            EffectsComponent = actionRegistration.ActionEffects,
-            PreconditionsComponent = actionRegistration.ActionPreconditions,
-            RepeatCount = 1
-        };
-        planningAction.EffectsComponent.Effects.Add(new("Near" + typeToMoveTo, 1));
-        return planningAction;
+        
+        if (actionRegistration == null)
+            throw new Exception("MoveTo action not found");
+        
+        var actionInstance = actionRegistration.CreateAction(agent);
+        actionInstance.ActionEffectsComponent.Effects.Add(new("Near" + typeToMoveTo, 1));
+        return actionInstance;
     }
 
     public IGoapAction CreateAction<TAction>(
@@ -103,7 +116,7 @@ public class GoapActionsFactory : IGoapActionsFactory
         GoapActionDataComponent actionData, 
         GoapActionPreconditionComponent actionPreconditions, 
         GoapActionEffectComponent actionEffects) 
-        where TAction : GoapActionBase, new()
+        where TAction : IGoapAction, new()
     {
         var action = new TAction();
         action.Initialize(agent, actionData, actionPreconditions, actionEffects);

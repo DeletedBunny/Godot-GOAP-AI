@@ -10,22 +10,19 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.MoveTo)]
 public class GoapActionMove : GoapActionBase
 {
-    private EntityType _dynamincTargetType = EntityType.Unknown;
-    
-    public override bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
-        IGoapAction previousAction)
+    public override bool InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction)
     {
-        if (previousAction != null && previousAction.ActionPreconditions.RequiredEntity != EntityType.None)
+        if (previousAction != null && previousAction.ActionPreconditionsComponent.RequiredEntity != EntityType.None)
         {
-            _dynamincTargetType = previousAction.ActionPreconditions.RequiredEntity;
+            var dynamincTargetType = previousAction.ActionPreconditionsComponent.RequiredEntity;
             
-            var closestNode = worldStateMemento.GetClosestElementByType(_dynamincTargetType, Agent);
+            var closestNode = worldStateMemento.GetClosestElementByType(dynamincTargetType, Agent);
             if(closestNode == null)
                 return false;
         
-            InitializeTarget(worldStateMemento, previousAction.GetTarget(), _dynamincTargetType, true);
-            ActionData.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
-            ActionEffects.Effects.Add(new KeyValuePair<string, int>("Near" + _dynamincTargetType, 1));
+            InitializeTargetInternal(worldStateMemento, previousAction.GetTarget(), dynamincTargetType, true);
+            ActionDataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
+            ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>("Near" + dynamincTargetType, 1));
             
             return true;
         }

@@ -1,35 +1,45 @@
 ﻿using System.Collections.Generic;
 using GodotGOAPAI.Source.Goap.Actions;
+using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 
 namespace GodotGOAPAI.Source.Goap.Planner;
 
 public class GoapPlanningLeaf
 {
-    public GoapActionType ActionType { get; private set; }
-    public GoapActionEffectComponent ActionEffectComponent { get; private set; }
-    public GoapActionPreconditionComponent ActionPreconditionComponent { get; private set; }
-    public GoapPlanningLeaf MoveToActionLeaf { get; set; }
+    public IGoapAction ActionInstance { get; set; }
     
     public GoapPlanningLeaf Parent { get; set; }
-    public List<GoapPlanningLeaf> Children { get; private set; }
+    public Dictionary<string, List<GoapPlanningLeaf>> Children { get; } = new();
+    
+    public bool IsResolvable { get; set; }
 
-    public GoapPlanningLeaf(GoapActionType actionType, GoapActionEffectComponent actionEffectComponent, GoapActionPreconditionComponent actionPreconditionComponent)
+    public GoapPlanningLeaf(IGoapAction actionInstance)
     {
-        ActionType = actionType;
-        ActionEffectComponent = actionEffectComponent;
-        ActionPreconditionComponent = actionPreconditionComponent;
+        ActionInstance = actionInstance;
     }
 
-    public void AddChild(GoapPlanningLeaf child)
+    public void AddChild(string preconditionMetKey, GoapPlanningLeaf child)
     {
         child.Parent = this;
-        Children.Add(child);
+        if (Children.TryGetValue(preconditionMetKey, out var children))
+        {
+            children.Add(child);
+        }
+        else
+        {
+            Children.Add(preconditionMetKey, new List<GoapPlanningLeaf>() { child });
+        }
     }
     
     public void RemoveChild(GoapPlanningLeaf child)
     {
         child.Parent = null;
-        Children.Remove(child);
+        foreach (var (key, children) in Children)
+        {
+            children.Remove(child);
+            if (children.Count == 0)
+                Children.Remove(key);
+        }
     }
 }

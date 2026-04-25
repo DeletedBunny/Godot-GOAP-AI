@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
@@ -67,5 +68,10 @@ public partial class Agent3D : Node3D
     public bool IsNearPosition(Node3D target)
     {
         return MathHelper.IsNearPosition(GlobalPosition, target.GlobalPosition);
+    }
+
+    public List<(string, int)> GetAgentWorldState()
+    {
+        return _agentHandsInventory.GetInventoryState();
     }
 }

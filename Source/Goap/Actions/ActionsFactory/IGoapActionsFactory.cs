@@ -5,12 +5,13 @@ using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
-namespace GodotGOAPAI.Source.Goap.Actions;
+namespace GodotGOAPAI.Source.Goap.Actions.ActionsFactory;
 
 public interface IGoapActionsFactory
 {
     void RegisterActions();
     IGoapAction GetAction(GoapActionType type, Agent3D agent);
+    IGoapAction GetGoal(GoapActionPreconditionComponent preconditionComponent);
     List<GoapPlanningAction> GetMatchingActionsByEffect(string actionResultKey);
-    GoapPlanningAction GetMoveToAction(EntityType typeToMoveTo);
+    IGoapAction GetMoveToAction(EntityType typeToMoveTo, Agent3D agent);
 }

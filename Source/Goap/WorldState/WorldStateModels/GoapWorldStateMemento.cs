@@ -109,7 +109,7 @@ public class GoapWorldStateMemento
     // doubt there will be another base positional node since we can't perceive higher than 3D.
     public Node3D GetClosestElementByType(EntityType entityType, Node3D agent)
     {
-        if (entityType == EntityType.Unknown)
+        if (entityType == EntityType.Unknown || entityType == EntityType.None)
             return null;
         _worldStateModel.ResourcesAmountByType.TryGetValue(entityType, out var resourceNodes);
 		var resourceWithModifiedNodes = new List<Node3D>();

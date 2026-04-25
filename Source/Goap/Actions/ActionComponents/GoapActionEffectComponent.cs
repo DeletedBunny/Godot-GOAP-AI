@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,7 +6,7 @@ namespace GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 
 public class GoapActionEffectComponent
 {
-    public List<KeyValuePair<string, int>> Effects { get; init; }
+    public List<KeyValuePair<string, int>> Effects { get; init; } = new();
 
     public bool ContainsEffect(string actionKey)
     {
