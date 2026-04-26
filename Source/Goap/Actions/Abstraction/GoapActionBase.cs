@@ -55,7 +55,7 @@ public abstract class GoapActionBase : IGoapAction
         return conditionToMeet;
     }
     
-    public int CalculateCost()
+    public float CalculateCost()
     {
         return ActionDataComponent.CalculatedCost;
     }

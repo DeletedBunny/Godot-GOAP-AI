@@ -15,7 +15,7 @@ public interface IGoapAction
     void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions, GoapActionEffectComponent actionEffects);
     bool InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction);
     Node3D GetTarget();
-    int CalculateCost();
+    float CalculateCost();
     void ExecuteAction(double deltaTime);
     bool IsCompletedConditionMet();
 }

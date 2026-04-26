@@ -5,6 +5,7 @@ namespace GodotGOAPAI.Source;
 public static class MathHelper
 {
     private static readonly Vector3 ReachedPositionThreshold = new Vector3(0.2f, 0.2f, 0.2f);
+    public static readonly float FloatEpsilon = 0.001f;
 
     public static bool IsNearPosition(Vector3 source, Vector3 destination)
     {

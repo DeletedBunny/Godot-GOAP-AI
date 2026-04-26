@@ -2,6 +2,7 @@
 using GodotGOAPAI.Source.Goap.Actions;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
 namespace GodotGOAPAI.Source.Goap.Planner;
 
@@ -12,6 +13,8 @@ public class GoapPlanningLeaf
     public GoapPlanningLeaf Parent { get; set; }
     public Dictionary<string, List<GoapPlanningLeaf>> Children { get; } = new();
     
+    public float CalculatedCost => ActionInstance.ActionDataComponent.CalculatedCost;
+    public float CachedTotalCost { get; set; }
     public bool IsResolvable { get; set; }
 
     public GoapPlanningLeaf(IGoapAction actionInstance)

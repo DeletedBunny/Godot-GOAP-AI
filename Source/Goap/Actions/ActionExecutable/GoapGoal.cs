@@ -34,26 +34,26 @@ public class GoapGoal : IGoapAction
 
     public bool InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction)
     {
-        throw new System.NotImplementedException();
+        return true;
     }
 
     public Node3D GetTarget()
     {
-        throw new System.NotImplementedException();
+        return null;
     }
 
-    public int CalculateCost()
+    public float CalculateCost()
     {
-        throw new NotImplementedException();
+        return 0f;
     }
 
     public void ExecuteAction(double deltaTime)
     {
-        throw new System.NotImplementedException();
+        throw new Exception("This action is not executable");
     }
 
     public bool IsCompletedConditionMet()
     {
-        throw new System.NotImplementedException();
+        return true;
     }
 }

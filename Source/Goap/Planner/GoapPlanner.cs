@@ -18,8 +18,8 @@ namespace GodotGOAPAI.Source.Goap.Planner;
 public class GoapPlanner
 {
     private readonly IGoapActionsFactory _goapActionsFactory = new GoapActionsFactory();
-    private readonly GoapPlannerExecutionQueue _goapPlannerExecutionQueue = new GoapPlannerExecutionQueue();
-    
+    private readonly GoapPlannerExecutionQueue _goapPlannerExecutionQueue = new();
+
     public GoapPlanner()
     {
         _goapActionsFactory.RegisterActions();
@@ -30,16 +30,16 @@ public class GoapPlanner
         var worldStateMemento = GoapWorldStateService.Instance.GetWorldStateMemento();
         var worldStatePlanningModel = new GoapWorldStatePlanningModel(worldStateMemento);
         agent.GetAgentWorldState().ForEach(x => worldStatePlanningModel.SetTrackedState("Has" + x.Item1, x.Item2));
-        
-        
 
-        if (ValidateTreeResolvability(planningTree.Root, worldStatePlanningModel))
+        var planningTree = BuildTree(_goapActionsFactory.GetGoal(neededItemsToHave), worldStatePlanningModel, agent);
+
+        var totalPlanCost = ValidateTreeAndCalculateCost(planningTree.Root, worldStatePlanningModel, worldStateMemento);
+        if (totalPlanCost < float.MaxValue)
         {
-            GD.Print("Tree is resolvable");
-            
+            BuildExecutionQueue(planningTree.Root);
         }
-        
-        GD.Print("Planning tree created");
+
+        /*GD.Print("Planning tree created");
         var leafs = new Queue<GoapPlanningLeaf>();
         leafs.Enqueue(planningTree.Root);
         while (leafs.Count > 0)
@@ -47,11 +47,8 @@ public class GoapPlanner
             var currentLeaf = leafs.Dequeue();
             GD.Print(currentLeaf.ActionInstance.Type + " | IsResolvable: " + currentLeaf.IsResolvable);
             var children = currentLeaf.Children.Values.SelectMany(x => x);
-            foreach (var child in children)
-            {
-                leafs.Enqueue(child);
-            }
-        }
+            foreach (var child in children) leafs.Enqueue(child);
+        }*/
 
         // Hardcoded for now
         //var pickupAxe = _goapActionsFactory.GetAction(GoapActionType.PickUpAxe, agent);
@@ -65,17 +62,16 @@ public class GoapPlanner
 
     private GoapPlanningTree BuildTree(IGoapAction goal, GoapWorldStatePlanningModel worldStatePlanningModel, Agent3D agent)
     {
-        GoapPlanningLeaf root = new GoapPlanningLeaf(goal);
-        GoapPlanningTree planningTree = new GoapPlanningTree(root);
-        
-        // Start planning
+        var root = new GoapPlanningLeaf(goal);
+        var planningTree = new GoapPlanningTree(root);
+
         var unvisitedLeafs = new Queue<GoapPlanningLeaf>();
         unvisitedLeafs.Enqueue(planningTree.Root);
-        
+
         while (unvisitedLeafs.Count > 0)
         {
             var currentLeaf = unvisitedLeafs.Dequeue();
-            
+
             if (currentLeaf.ActionInstance.ActionPreconditionsComponent.NeedsEntityNearby())
             {
                 var moveToAction = _goapActionsFactory.GetMoveToAction(currentLeaf.ActionInstance.ActionPreconditionsComponent.RequiredEntity, agent);
@@ -83,10 +79,11 @@ public class GoapPlanner
                 moveToLeaf.IsResolvable = true;
                 currentLeaf.AddChild("Near" + currentLeaf.ActionInstance.ActionPreconditionsComponent.RequiredEntity, moveToLeaf);
             }
-            
+
             var unmetPreconditions = currentLeaf.ActionInstance.ActionPreconditionsComponent.Preconditions
-                .Where(kvp => worldStatePlanningModel.GetTrackedState(kvp.Key) < kvp.Value && !kvp.Key.Contains("Near"))
-                .ToList();
+                                                .Where(kvp => worldStatePlanningModel.GetTrackedState(kvp.Key) < kvp.Value &&
+                                                              !kvp.Key.Contains("Near"))
+                                                .ToList();
 
             if (unmetPreconditions.Count == 0)
             {
@@ -98,11 +95,8 @@ public class GoapPlanner
             {
                 var matchingActions = GetMatchingActionsWithAmount(precondition);
 
-                if (matchingActions.Count == 0)
-                {
-                    currentLeaf.IsResolvable = false;
-                }
-                
+                if (matchingActions.Count == 0) currentLeaf.IsResolvable = false;
+
                 foreach (var action in matchingActions)
                 {
                     var actionInstance = _goapActionsFactory.GetAction(action.Type, agent);
@@ -112,75 +106,125 @@ public class GoapPlanner
                 }
             }
         }
-        
-        r
+
+        return planningTree;
     }
 
-    private bool ValidateTreeResolvability(GoapPlanningLeaf leaf, GoapWorldStatePlanningModel worldStatePlanningModel)
+    private float ValidateTreeAndCalculateCost(GoapPlanningLeaf leaf, GoapWorldStatePlanningModel worldStatePlanningModel,
+                                               GoapWorldStateMemento worldStateMemento)
     {
         var unmetPreconditions = leaf.ActionInstance.ActionPreconditionsComponent.Preconditions
-            .Where(kvp => worldStatePlanningModel.GetTrackedState(kvp.Key) < kvp.Value)
-            .Select(kvp => kvp.Key)
-            .ToList();
-        
+                                     .Where(kvp => worldStatePlanningModel.GetTrackedState(kvp.Key) < kvp.Value)
+                                     .Select(kvp => kvp.Key)
+                                     .ToList();
+
         if (unmetPreconditions.Count == 0)
-            return leaf.IsResolvable = true;
+        {
+            leaf.ActionInstance.InitializeTarget(worldStateMemento, leaf.Parent?.ActionInstance);
+            return leaf.ActionInstance.CalculateCost();
+        }
+
+        var precodtionsTotalCost = 0f;
+        IGoapAction bestCostAction = null;
 
         foreach (var precondition in unmetPreconditions)
         {
             if (!leaf.Children.TryGetValue(precondition, out var children))
-                return leaf.IsResolvable = false;
+                return float.MaxValue;
 
-            bool anyChildValid = false;
+            var cheapestChildCost = float.MaxValue;
+            GoapPlanningLeaf cheapestChild = null;
+
             foreach (var child in children)
             {
-                if (ValidateTreeResolvability(child, worldStatePlanningModel))
-                {
-                    anyChildValid = true;
-                    break;
-                }
+                var childCost = ValidateTreeAndCalculateCost(child, worldStatePlanningModel, worldStateMemento);
+                if (!(childCost < cheapestChildCost))
+                    continue;
+
+                cheapestChildCost = childCost;
+                cheapestChild = child;
             }
-            
-            if (!anyChildValid)
-                return leaf.IsResolvable = false;
+
+            if (Math.Abs(cheapestChildCost - float.MaxValue) < MathHelper.FloatEpsilon || cheapestChild == null)
+                return float.MaxValue;
+
+
+            precodtionsTotalCost += cheapestChildCost;
+            bestCostAction = cheapestChild.ActionInstance;
         }
-        
-        return leaf.IsResolvable = true;
+
+        leaf.ActionInstance.InitializeTarget(worldStateMemento, bestCostAction);
+        leaf.CachedTotalCost = leaf.CalculatedCost + precodtionsTotalCost;
+        leaf.IsResolvable = true;
+        return leaf.CachedTotalCost;
     }
 
-    private float InitializeAndCalculateCost(
-        GoapPlanningLeaf leaf, 
-        IGoapAction parentAction,
-        GoapWorldStateMemento worldStateMemento)
+    private void BuildExecutionQueue(GoapPlanningLeaf leaf)
     {
-        leaf.ActionInstance.InitializeTarget(worldStateMemento, parentAction);
-        float currentActionCost = leaf.ActionInstance.CalculateCost();
+        var itemActions = new List<GoapPlanningLeaf>();
+        GoapPlanningLeaf moveAction = null;
         
+        foreach (var child in leaf.Children)
+        {
+            var bestChild = child.Value
+                                 .Where(x => x.IsResolvable)
+                                 .OrderBy(x => x.CachedTotalCost)
+                                 .FirstOrDefault();
+
+            if (bestChild == null)
+                continue;
+
+            if (child.Key.Contains("Near"))
+            {
+                moveAction = bestChild;
+            }
+            else
+            {
+                itemActions.Add(bestChild);
+            }
+        }
+
+        foreach (var action in itemActions)
+        {
+            BuildExecutionQueue(action);
+        }
+
+        if (moveAction != null)
+        {
+            BuildExecutionQueue(moveAction);
+        }
+
+        if (leaf.ActionInstance.Type == GoapActionType.PlanningTreeRoot)
+            return;
         
+        _goapPlannerExecutionQueue.AddToQueue(leaf.ActionInstance);
     }
-    
-    private GoapPlanningLeaf CreateLeaf(IGoapAction action) => new(action);
+
+    private GoapPlanningLeaf CreateLeaf(IGoapAction action)
+    {
+        return new GoapPlanningLeaf(action);
+    }
 
     private List<GoapPlanningAction> GetMatchingActionsWithAmount(KeyValuePair<string, int> actionPrecondition)
     {
         var matchingActions = _goapActionsFactory.GetMatchingActionsByEffect(actionPrecondition.Key);
-        
+
         matchingActions.ForEach(action =>
         {
             var effect = action.EffectsComponent.Effects.First(kvp => kvp.Key.Equals(actionPrecondition.Key));
             action.RepeatCount = (int)Math.Ceiling(actionPrecondition.Value / (float)effect.Value);
         });
-        
+
         return matchingActions;
     }
-    
+
     public void Execute(double deltaTime)
     {
         try
         {
             if (_goapPlannerExecutionQueue.IsQueueEmpty)
                 return;
-        
+
             _goapPlannerExecutionQueue.ExecuteQueue(deltaTime);
         }
         catch (Exception ex)
