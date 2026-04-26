@@ -1,18 +1,19 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Godot;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
-public class GoapWorldStateMemento<TNode> where TNode : Node
+public class GoapWorldStateMemento
 {
-    private readonly GoapWorldStateModel<TNode> _worldStateModel;
-    private readonly Dictionary<EntityType, List<TNode>> _removedResources = new Dictionary<EntityType, List<TNode>>();
-    private readonly Dictionary<EntityType, List<TNode>> _addedResources = new Dictionary<EntityType, List<TNode>>();
+    private readonly GoapWorldStateModel _worldStateModel;
+    private readonly Dictionary<EntityType, List<Node3D>> _removedResources = new();
+    private readonly Dictionary<EntityType, List<Node3D>> _addedResources = new();
     
     public bool IsWorldStateModified { get; private set; }
     
-    public GoapWorldStateMemento(GoapWorldStateModel<TNode> worldStateModel)
+    public GoapWorldStateMemento(GoapWorldStateModel worldStateModel)
     {
         _worldStateModel = worldStateModel;
     }
@@ -35,7 +36,7 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
         IsWorldStateModified = isWorldStateModified;
     }
     
-    public void AddModifiedResource(EntityType entityType, List<TNode> nodes, bool isRemoved)
+    public void AddModifiedResource(EntityType entityType, List<Node3D> nodes, bool isRemoved)
     {
         if (isRemoved)
         {
@@ -61,31 +62,36 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
         }
     }
     
-    public GoapWorldStateModel<TNode> GetWorldStateModel()
+    public GoapWorldStateModel GetWorldStateModel()
     {
         return _worldStateModel.GetCopy();
     }
 
-    public GoapWorldStateMemento<TNode> GetCopy()
+    public ImmutableDictionary<EntityType, List<Node3D>> GetWorldStateResources()
     {
-        var worldStateMemento = new GoapWorldStateMemento<TNode>(_worldStateModel.GetCopy());
+        return _worldStateModel.ResourcesAmountByType.ToImmutableDictionary();
+    }
+
+    public GoapWorldStateMemento GetCopy()
+    {
+        var worldStateMemento = new GoapWorldStateMemento(_worldStateModel.GetCopy());
         foreach (var (key, value) in _addedResources)
         {
-            var nodesCopy = new List<TNode>(value);
+            var nodesCopy = new List<Node3D>(value);
             worldStateMemento.AddModifiedResource(key, nodesCopy, false);
         }
 
         foreach (var (key, value) in _removedResources)
         {
-            var nodesCopy = new List<TNode>(value);
+            var nodesCopy = new List<Node3D>(value);
             worldStateMemento.AddModifiedResource(key, nodesCopy, true);
         }
         return worldStateMemento;
     }
 
-    public  IReadOnlyList<TNode> GetResource(EntityType entityType)
+    public  IReadOnlyList<Node3D> GetResource(EntityType entityType)
     {
-        var resourceWithModifiedNodes = new List<TNode>();
+        var resourceWithModifiedNodes = new List<Node3D>();
         if (_worldStateModel.ResourcesAmountByType.TryGetValue(entityType, out var resourceNodes))
             resourceWithModifiedNodes.AddRange(resourceNodes);
         
@@ -101,15 +107,17 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
     // Would be better to replace TNode generic with a custom type like GodotNode to pick between Node2D or Node3D based
     // on the type of the node. This would allow flexibility in adding new node types, although besides 3D and 2D I
     // doubt there will be another base positional node since we can't perceive higher than 3D.
-    public TNode GetClosestElementByType(EntityType entityType, TNode agent)
+    public Node3D GetClosestElementByType(EntityType entityType, Node3D agent)
     {
+        if (entityType == EntityType.Unknown || entityType == EntityType.None)
+            return null;
         _worldStateModel.ResourcesAmountByType.TryGetValue(entityType, out var resourceNodes);
-		var resourceWithModifiedNodes = new List<TNode>();
+		var resourceWithModifiedNodes = new List<Node3D>();
         
         if (resourceNodes != null)
             resourceWithModifiedNodes.AddRange(resourceNodes);
         
-        TNode closestNode = null;
+        Node3D closestNode = null;
 		
         foreach (var node in resourceWithModifiedNodes)
         {
@@ -124,27 +132,9 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
         return closestNode;
     }
 
-    private float GetDistanceToElement(TNode agent, TNode element)
-    {
-        if(agent is Node3D agent3D && element is Node3D element3D)
-            return GetDistanceToElement3D(agent3D, element3D);
-        
-        if(agent is Node2D agent2D && element is Node2D element2D)
-            return GetDistanceToElement2D(agent2D, element2D);
-        
-        throw new System.NotImplementedException(
-            $"GetDistanceToElement method is not implemented for agent of type = {agent.GetType()} and element of type = {element.GetType()}"
-        );
-    }
-
-    private float GetDistanceToElement3D(Node3D agent, Node3D element)
+    private float GetDistanceToElement(Node3D agent, Node3D element)
     {
         return agent.GlobalPosition.DistanceSquaredTo(element.GlobalPosition);
-    }
-
-    private float GetDistanceToElement2D(Node2D agent, Node2D element)
-    {
-        return agent.GlobalPosition.DistanceSquaredTo(element.GlobalPosition);   
     }
     
     public void RevertModificationsToWorldState()
@@ -161,5 +151,7 @@ public class GoapWorldStateMemento<TNode> where TNode : Node
         {
             _worldStateModel.AddItems(key, removedResourceNodes);
         }
+        
+        IsWorldStateModified = false;
     }
 }

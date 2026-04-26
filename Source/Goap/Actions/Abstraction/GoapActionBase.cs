@@ -1,46 +1,72 @@
 ﻿using System;
 using Godot;
+using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
 public abstract class GoapActionBase : IGoapAction
 {
-    protected GoapActionDataComponent ActionData;
-    protected Node3D Target { get; set; }
-    protected Agent3D Agent { get; set; }
-
-    public virtual void Initialize(GoapActionParams actionParams)
+    public GoapActionType Type
     {
-        ActionData = new GoapActionDataComponent();
-        Agent = actionParams.Agent;
-    }
-
-    public int CalculateCost()
-    {
-        return ActionData.CalculatedCost;
-    }
-
-    public abstract bool IsActionPreconditionsValid(GoapWorldStateMemento<Node3D> worldStateMemento,
-        GoapActionResult actionResult);
-    public abstract GoapActionResult GetActionResult();
-
-    public virtual void ExecuteAction(double deltaTime)
-    {
-        if (Target == null)
+        get
         {
-            throw new Exception("Target is null and action is not completed yet, breaking...");
+            var attribute = Attribute.GetCustomAttribute(GetType(), typeof(GoapActionAttribute));
+            if (attribute is GoapActionAttribute goapActionAttribute)
+                return goapActionAttribute.Type;
+            return GoapActionType.Unknown;
         }
-        
-        Agent.MoveTo(Target, deltaTime);
     }
 
-    protected bool ReachedTarget()
+    public GoapActionDataComponent ActionDataComponent { get; private set; }
+    public GoapActionPreconditionComponent ActionPreconditionsComponent { get; private set; }
+    public GoapActionEffectComponent ActionEffectsComponent { get; private set; }
+    protected Node3D Target { get; private set; }
+    protected Agent3D Agent { get; private set; }
+
+    public void Initialize(
+        Agent3D agent, 
+        GoapActionDataComponent actionData, 
+        GoapActionPreconditionComponent actionPreconditions,
+        GoapActionEffectComponent actionEffects)
     {
-        return Agent.ReachedPosition(Target);
+        ActionDataComponent = actionData;
+        ActionPreconditionsComponent = actionPreconditions;
+        ActionEffectsComponent = actionEffects;
+        Agent = agent;
     }
 
+    public abstract bool InitializeTarget(GoapWorldStateMemento worldStateMemento,
+        IGoapAction previousAction);
+    public abstract void ExecuteAction(double deltaTime);
     public abstract bool IsCompletedConditionMet();
+
+    protected bool InitializeTargetInternal(GoapWorldStateMemento worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
+    {
+        if (conditionToMeet)
+        {
+            var startNode = previousTarget ?? Agent;
+            var closestNode = worldStateMemento.GetClosestElementByType(entityType, startNode);
+            Target = closestNode;
+        }
+        return conditionToMeet;
+    }
+    
+    public float CalculateCost()
+    {
+        return ActionDataComponent.CalculatedCost;
+    }
+    
+    public Node3D GetTarget()
+    {
+        return Target;
+    }
+    
+    protected bool IsNearPosition()
+    {
+        return Agent.IsNearPosition(Target);
+    }
 }

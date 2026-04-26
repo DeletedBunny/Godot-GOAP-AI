@@ -27,8 +27,8 @@ public class GoapPlannerExecutionQueue
     {
         lock (_executionQueueLock)
         {
-            _runningAction = _executionQueue.Last();
-            _executionQueue.RemoveAt(_executionQueue.Count - 1);
+            _runningAction = _executionQueue.First();
+            _executionQueue.RemoveAt(0);
         }
     }
 

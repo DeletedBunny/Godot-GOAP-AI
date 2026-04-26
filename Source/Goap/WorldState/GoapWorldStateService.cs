@@ -13,14 +13,14 @@ public partial class GoapWorldStateService : Node
 {
 	public static GoapWorldStateService Instance { get; set; }
 	
-	private readonly IGoapWorldStateGenerator<Node3D> _worldStateGenerator = new GoapWorldStateGenerator<Node3D>();
-	private readonly List<GoapWorldStateMemento<Node3D>> _worldStateMementos = new List<GoapWorldStateMemento<Node3D>>();
+	private readonly IGoapWorldStateGenerator _worldStateGenerator = new GoapWorldStateGenerator();
+	private readonly List<GoapWorldStateMemento> _worldStateMementos = new List<GoapWorldStateMemento>();
 	private readonly object _worldStateLock = new object();
 	
 	private Node _worldDataCollectionsNode;
 	private Node _agentsCollectionNode;
 
-	private GoapWorldStateModel<Node3D> _currentWorldStateModel;
+	private GoapWorldStateModel _currentWorldStateModel;
 
 	public Node WorldTreesCollectionNode => _worldDataCollectionsNode.GetNode("Trees");
 	public Node WorldMountainsCollectionNode => _worldDataCollectionsNode.GetNode("Mountains");
@@ -52,12 +52,12 @@ public partial class GoapWorldStateService : Node
 		_currentWorldStateModel = _worldStateGenerator.GenerateWorldStateModel(_worldDataCollectionsNode, _agentsCollectionNode);
 	}
 
-	public GoapWorldStateMemento<Node3D> GetWorldStateMemento()
+	public GoapWorldStateMemento GetWorldStateMemento()
 	{
 		lock (_worldStateLock)
 		{
 			var worldStateModelCopy = _currentWorldStateModel.GetCopy();
-			var worldStateMemento = new GoapWorldStateMemento<Node3D>(worldStateModelCopy);
+			var worldStateMemento = new GoapWorldStateMemento(worldStateModelCopy);
 			_worldStateMementos.Add(worldStateMemento);
 			return worldStateMemento;
 		}

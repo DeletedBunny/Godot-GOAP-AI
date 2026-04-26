@@ -4,33 +4,34 @@ using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.Goap.CustomResource;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.GodotHelpers;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateGenerator;
 
-public class GoapWorldStateGenerator<TNode> : IGoapWorldStateGenerator<TNode> where TNode : Node
+public class GoapWorldStateGenerator : IGoapWorldStateGenerator
 {
-    public GoapWorldStateModel<TNode> GenerateWorldStateModel(Node worldCollectionsRootNode, Node agentCollectionsRootNode)
+    public GoapWorldStateModel GenerateWorldStateModel(Node worldCollectionsRootNode, Node agentCollectionsRootNode)
     {
-        var resourcesAmountByType = new Dictionary<EntityType, List<TNode>>();
+        var resourcesAmountByType = new Dictionary<EntityType, List<Node3D>>();
         AddStaticWorldResourcesToDictionary(worldCollectionsRootNode, resourcesAmountByType);
         AddDynamicItemsToDictionary(worldCollectionsRootNode, resourcesAmountByType);
-        return new GoapWorldStateModel<TNode>(resourcesAmountByType).WithEmptyInitialization();
+        return new GoapWorldStateModel(resourcesAmountByType).WithEmptyInitialization();
     }
 
-    private static void AddStaticWorldResourcesToDictionary(Node worldCollectionsRootNode, Dictionary<EntityType, List<TNode>> resourcesAmountByType)
+    private static void AddStaticWorldResourcesToDictionary(Node worldCollectionsRootNode, Dictionary<EntityType, List<Node3D>> resourcesAmountByType)
     {
         foreach (var collection in worldCollectionsRootNode.GetChildren())
         {
-            if (collection.GetMeta("GoapResourceType").Obj is not GoapResource resourceType)
+            if (collection.GetMetaData(GoapResource.Name) is not GoapResource resourceType)
                 continue;
             
-            var nodes = collection.GetChildren().OfType<TNode>().ToList();
+            var nodes = collection.GetChildren().OfType<Node3D>().ToList();
             resourcesAmountByType.Add(resourceType.EntityType, nodes);
         }
     }
 
-    private static void AddDynamicItemsToDictionary(Node worldCollectionsRootNode, Dictionary<EntityType, List<TNode>> resourcesAmountByType)
+    private static void AddDynamicItemsToDictionary(Node worldCollectionsRootNode, Dictionary<EntityType, List<Node3D>> resourcesAmountByType)
     {
         var itemsNode = worldCollectionsRootNode.GetNode<Node>("Items");
         foreach (var type in Enum.GetValues<EntityType>())
@@ -38,9 +39,9 @@ public class GoapWorldStateGenerator<TNode> : IGoapWorldStateGenerator<TNode> wh
             if (IgnoredWorldResourceTypes.IgnoreList.Contains(type))
                 continue;
             
-            var resourcesByType = itemsNode.GetChildren().OfType<TNode>().Where(node =>
+            var resourcesByType = itemsNode.GetChildren().OfType<Node3D>().Where(node =>
             {
-                if (node.GetMeta("GoapResourceType").Obj is not GoapResource resourceType)
+                if (node.GetMetaData(GoapResource.Name) is not GoapResource resourceType)
                     throw new Exception("GoapResourceType metadata not found on node - " + node.Name);
 
                 return resourceType.EntityType == type;

@@ -33,5 +33,6 @@ public enum EntityType
     Tree,
     Mountain,
     Bush,
-    Unknown
+    Unknown,
+    None
 }
