@@ -5,6 +5,7 @@ using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 
@@ -32,9 +33,9 @@ public class GoapGoal : IGoapAction
         ActionPreconditionsComponent = actionPreconditions;
     }
 
-    public bool InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction)
+    public void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
     {
-        return true;
+        
     }
 
     public Node3D GetTarget()

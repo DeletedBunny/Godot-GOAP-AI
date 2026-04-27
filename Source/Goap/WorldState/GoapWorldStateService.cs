@@ -31,6 +31,7 @@ public partial class GoapWorldStateService : Node
 	{
 		Instance = this;
 		EventBus.Instance.Subscribe<RegisterWorldCollectionNodesEvent>(OnRegisterWorldCollectionNodes);
+		EventBus.Instance.Subscribe<WorldStateChangedEvent>(OnWorldStateChanged);
 	}
 
 	private void OnRegisterWorldCollectionNodes(IEvent eventData)
@@ -44,6 +45,27 @@ public partial class GoapWorldStateService : Node
 		lock (_worldStateLock)
 		{
 			GenerateWorldState();
+		}
+	}
+
+	private void OnWorldStateChanged(IEvent eventData)
+	{
+		if (eventData is not WorldStateChangedEvent worldStateChangedEvent)
+			return;
+
+		lock (_worldStateLock)
+		{
+			foreach (var pairEntityNode in worldStateChangedEvent.ChangedNodes)
+			{
+				if (worldStateChangedEvent.IsRemoved)
+				{
+					_currentWorldStateModel.RemoveItems(pairEntityNode.Key, pairEntityNode.Value);
+				}
+				else
+				{
+					_currentWorldStateModel.AddItems(pairEntityNode.Key, pairEntityNode.Value);
+				}
+			}
 		}
 	}
 	
@@ -78,7 +100,6 @@ public partial class GoapWorldStateService : Node
 			worldStateMemento.ApplyModificationsToWorldState();
 			_currentWorldStateModel = worldStateMemento.GetWorldStateModel();
 			_worldStateMementos.RemoveAt(_worldStateMementos.Count - 1);
-			EventBus.Instance.SendEvent<WorldStateChangedEvent>();
 		}
 	}
 
@@ -95,8 +116,6 @@ public partial class GoapWorldStateService : Node
 				GD.PrintErr($"EntityPickedUp: Entity {entity} is not an IEntity");
 				return;
 			}
-
-			EventBus.Instance.SendEvent<WorldStateChangedEvent>();
 		}
 	}
 
@@ -112,8 +131,6 @@ public partial class GoapWorldStateService : Node
 			{
 				GD.PrintErr($"EntityDropped: Entity {entity} is not an IEntity");
 			}
-			
-			EventBus.Instance.SendEvent<WorldStateChangedEvent>();
 		}
 	}
 	

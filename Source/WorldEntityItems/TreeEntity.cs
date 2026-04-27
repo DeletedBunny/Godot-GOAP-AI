@@ -1,5 +1,7 @@
 using Godot;
+using GodotGOAPAI.Source.EventSystem;
 using GodotGOAPAI.Source.Goap.WorldState;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
 using GodotGOAPAI.Source.GodotHelpers;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
@@ -49,7 +51,15 @@ public partial class TreeEntity : Node3D, IEntity, IInteractableEntity, IResourc
         {
             var logScene = SceneLoader.LoadScene(ResourceEntityTypeToSpawnOnDestroy);
             var collectionNodeToInstanceIn = GoapWorldStateService.Instance.WorldItemsCollectionNode;
-            logScene.InstanceSceneOnNode3D(collectionNodeToInstanceIn, GlobalPosition, ResourceToSpawnAmount);
+            var instanceList = logScene.InstanceSceneOnNode3D(collectionNodeToInstanceIn, GlobalPosition, ResourceToSpawnAmount);
+            EventBus.Instance.SendEvent(new WorldStateChangedEvent()
+            {
+                ChangedNodes = new()
+                {
+                    { EntityType.Log, instanceList }
+                }, 
+                IsRemoved = false
+            });
             _isDisposed = true;
             QueueFree();
             return;

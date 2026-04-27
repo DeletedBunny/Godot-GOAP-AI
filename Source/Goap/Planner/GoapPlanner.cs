@@ -33,9 +33,11 @@ public class GoapPlanner
 
         var planningTree = BuildTree(_goapActionsFactory.GetGoal(neededItemsToHave), worldStatePlanningModel, agent);
 
-        var totalPlanCost = ValidateTreeAndCalculateCost(planningTree.Root, worldStatePlanningModel, worldStateMemento);
-        if (totalPlanCost < float.MaxValue)
+        var finalPlanResult = ValidateTreeAndCalculateCost(planningTree.Root, worldStatePlanningModel, worldStateMemento, null);
+        if (finalPlanResult.Cost < float.MaxValue)
         {
+            worldStateMemento.ApplyModificationsToWorldState();
+            GoapWorldStateService.Instance.ApplyWorldStateMemento();
             BuildExecutionQueue(planningTree.Root);
         }
 
@@ -95,7 +97,8 @@ public class GoapPlanner
             {
                 var matchingActions = GetMatchingActionsWithAmount(precondition);
 
-                if (matchingActions.Count == 0) currentLeaf.IsResolvable = false;
+                if (matchingActions.Count == 0) 
+                    currentLeaf.IsResolvable = false;
 
                 foreach (var action in matchingActions)
                 {
@@ -110,53 +113,48 @@ public class GoapPlanner
         return planningTree;
     }
 
-    private float ValidateTreeAndCalculateCost(GoapPlanningLeaf leaf, GoapWorldStatePlanningModel worldStatePlanningModel,
-                                               GoapWorldStateMemento worldStateMemento)
+    private GoapValidationResult ValidateTreeAndCalculateCost(
+        GoapPlanningLeaf leaf, 
+        GoapWorldStatePlanningModel worldStatePlanningModel,
+        GoapWorldStateMemento worldStateMemento, 
+        IGoapAction previousAction)
     {
         var unmetPreconditions = leaf.ActionInstance.ActionPreconditionsComponent.Preconditions
                                      .Where(kvp => worldStatePlanningModel.GetTrackedState(kvp.Key) < kvp.Value)
                                      .Select(kvp => kvp.Key)
                                      .ToList();
 
-        if (unmetPreconditions.Count == 0)
-        {
-            leaf.ActionInstance.InitializeTarget(worldStateMemento, leaf.Parent?.ActionInstance);
-            return leaf.ActionInstance.CalculateCost();
-        }
-
-        var precodtionsTotalCost = 0f;
-        IGoapAction bestCostAction = null;
+        var preconditionsTotalCost = 0f;
+        IGoapAction cheapestChild = previousAction;
 
         foreach (var precondition in unmetPreconditions)
         {
             if (!leaf.Children.TryGetValue(precondition, out var children))
-                return float.MaxValue;
+                return new GoapValidationResult() { Cost = float.MaxValue };
 
-            var cheapestChildCost = float.MaxValue;
-            GoapPlanningLeaf cheapestChild = null;
+            var cheapestChildResult = new GoapValidationResult() { Cost = float.MaxValue };
 
             foreach (var child in children)
             {
-                var childCost = ValidateTreeAndCalculateCost(child, worldStatePlanningModel, worldStateMemento);
-                if (!(childCost < cheapestChildCost))
-                    continue;
-
-                cheapestChildCost = childCost;
-                cheapestChild = child;
+                var result = ValidateTreeAndCalculateCost(child, worldStatePlanningModel, worldStateMemento, cheapestChild);
+                
+                if (result.Cost < cheapestChildResult.Cost)
+                    cheapestChildResult = result;
             }
 
-            if (Math.Abs(cheapestChildCost - float.MaxValue) < MathHelper.FloatEpsilon || cheapestChild == null)
-                return float.MaxValue;
+            if (cheapestChildResult.Cost >= float.MaxValue)
+                return new GoapValidationResult() { Cost = float.MaxValue };
 
 
-            precodtionsTotalCost += cheapestChildCost;
-            bestCostAction = cheapestChild.ActionInstance;
+            preconditionsTotalCost += cheapestChildResult.Cost;
+            cheapestChild = cheapestChildResult.Action;
         }
 
-        leaf.ActionInstance.InitializeTarget(worldStateMemento, bestCostAction);
-        leaf.CachedTotalCost = leaf.CalculatedCost + precodtionsTotalCost;
+        var moveToType = leaf.ActionInstance.Type == GoapActionType.MoveTo ? leaf.Parent.ActionInstance.ActionPreconditionsComponent.RequiredEntity : EntityType.None;
+        leaf.ActionInstance.InitializeTarget(worldStateMemento, cheapestChild, moveToType);
+        leaf.CachedTotalCost = leaf.CalculatedCost + preconditionsTotalCost;
         leaf.IsResolvable = true;
-        return leaf.CachedTotalCost;
+        return new GoapValidationResult() { Cost = leaf.CachedTotalCost, Action = leaf.ActionInstance };
     }
 
     private void BuildExecutionQueue(GoapPlanningLeaf leaf)
