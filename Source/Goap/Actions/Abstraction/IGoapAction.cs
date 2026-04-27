@@ -3,6 +3,7 @@ using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
@@ -13,7 +14,7 @@ public interface IGoapAction
     GoapActionPreconditionComponent ActionPreconditionsComponent { get; }
     GoapActionEffectComponent ActionEffectsComponent { get; }
     void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions, GoapActionEffectComponent actionEffects);
-    bool InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction);
+    void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType);
     Node3D GetTarget();
     float CalculateCost();
     void ExecuteAction(double deltaTime);

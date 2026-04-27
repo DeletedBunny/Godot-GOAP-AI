@@ -56,7 +56,7 @@ public class GoapWorldStateModel
 			if (existingItems == null)
 				return;
 			
-			ResourcesAmountByType[itemType].AddRange(items);
+			ResourcesAmountByType[itemType].RemoveAll(items.Contains);
 		}
 	}
 

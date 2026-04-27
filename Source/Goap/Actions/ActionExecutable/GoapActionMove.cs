@@ -10,24 +10,14 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.MoveTo)]
 public class GoapActionMove : GoapActionBase
 {
-    public override bool InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction)
+    public override void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
     {
-        if (previousAction != null && previousAction.ActionPreconditionsComponent.RequiredEntity != EntityType.None)
-        {
-            var dynamincTargetType = previousAction.ActionPreconditionsComponent.RequiredEntity;
-            
-            var closestNode = worldStateMemento.GetClosestElementByType(dynamincTargetType, Agent);
-            if(closestNode == null)
-                return false;
+        if (moveToType == EntityType.None) 
+            return;
         
-            InitializeTargetInternal(worldStateMemento, previousAction.GetTarget(), dynamincTargetType, true);
-            ActionDataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
-            ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>("Near" + dynamincTargetType, 1));
-            
-            return true;
-        }
-        
-        return false;
+        InitializeTargetInternal(worldStateMemento, previousAction?.GetTarget(), moveToType, true);
+        ActionDataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
+        ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>("Near" + moveToType, 1));
     }
 
     public override void ExecuteAction(double deltaTime)

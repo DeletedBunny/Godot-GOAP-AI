@@ -9,8 +9,7 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.CutTree)]
 public class GoapActionCutTree : GoapActionBase
 {
-    public override bool InitializeTarget(GoapWorldStateMemento worldStateMemento,
-        IGoapAction previousAction)
+    public override void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
     {
         var isTreeInWorld = worldStateMemento.GetResource(EntityType.Tree).Count > 0;
 
@@ -19,8 +18,6 @@ public class GoapActionCutTree : GoapActionBase
         {
             worldStateMemento.AddModifiedResource(EntityType.Tree, [Target], true);
         }
-        
-        return isTreeInWorld;
     }
 
     public override void ExecuteAction(double deltaTime)

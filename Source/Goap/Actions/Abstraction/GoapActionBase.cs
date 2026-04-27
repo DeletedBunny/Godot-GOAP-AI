@@ -39,8 +39,7 @@ public abstract class GoapActionBase : IGoapAction
         Agent = agent;
     }
 
-    public abstract bool InitializeTarget(GoapWorldStateMemento worldStateMemento,
-        IGoapAction previousAction);
+    public abstract void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType);
     public abstract void ExecuteAction(double deltaTime);
     public abstract bool IsCompletedConditionMet();
 
