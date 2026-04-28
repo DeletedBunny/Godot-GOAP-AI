@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
-using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
@@ -13,7 +11,7 @@ namespace GodotGOAPAI.Source.Goap;
 
 public partial class GoapMainController : Node
 {
-	private readonly GoapPlanner _planner = new GoapPlanner();
+	private readonly GoapPlanner _planner = new();
 	[Export] private Node _agentsCollectionNode;
 	[Export] private Node _worldDataCollectionsNode;
 	
@@ -43,7 +41,7 @@ public partial class GoapMainController : Node
 		{
 			var agent = _agentsCollectionNode.GetChild(0);
 			var goal = new GoapActionPreconditionComponent() { Preconditions = [
-				new("LogInWorld", 2)
+				new("LogInWorld", 4)
 			] };
 			_planner.Plan(agent as Agent3D, goal);
 			_start = false;

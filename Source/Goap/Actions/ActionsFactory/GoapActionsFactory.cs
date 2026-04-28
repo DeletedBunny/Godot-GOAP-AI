@@ -37,9 +37,10 @@ public class GoapActionsFactory : IGoapActionsFactory
             })
             .AddRequiredLocationType(EntityType.Tree)
             .AddPrecondition("HasAxe", 1)
-            .AddPrecondition("Tree", 1)
+            .AddPrecondition("TreeInWorld", 1)
             .AddPrecondition("NearTree", 1)
             .AddEffect("LogInWorld", 2)
+            .AddEffect("TreeInWorld", -1)
             .Build<GoapActionCutTree>(this);
         GoapActionBuilder.Create(GoapActionType.PickUpAxe)
             .AddData(new()
@@ -48,9 +49,10 @@ public class GoapActionsFactory : IGoapActionsFactory
                 TimeCostInSeconds = 2
             })
             .AddRequiredLocationType(EntityType.Axe)
-            .AddPrecondition("Axe", 1)
+            .AddPrecondition("AxeInWorld", 1)
             .AddPrecondition("NearAxe", 1)
             .AddEffect("HasAxe", 1)
+            .AddEffect("AxeInWorld", -1)
             .Build<GoapActionPickUpAxe>(this);
     }
 

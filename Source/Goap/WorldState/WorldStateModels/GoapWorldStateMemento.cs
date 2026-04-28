@@ -104,14 +104,12 @@ public class GoapWorldStateMemento
         return resourceWithModifiedNodes;
     }
     
-    // Would be better to replace TNode generic with a custom type like GodotNode to pick between Node2D or Node3D based
-    // on the type of the node. This would allow flexibility in adding new node types, although besides 3D and 2D I
-    // doubt there will be another base positional node since we can't perceive higher than 3D.
     public Node3D GetClosestElementByType(EntityType entityType, Node3D agent)
     {
         if (entityType == EntityType.Unknown || entityType == EntityType.None)
             return null;
-        _worldStateModel.ResourcesAmountByType.TryGetValue(entityType, out var resourceNodes);
+        
+        var resourceNodes = GetResource(entityType);
 		var resourceWithModifiedNodes = new List<Node3D>();
         
         if (resourceNodes != null)

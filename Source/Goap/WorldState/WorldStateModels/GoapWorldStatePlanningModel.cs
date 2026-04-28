@@ -7,7 +7,7 @@ namespace GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
 public class GoapWorldStatePlanningModel
 {
-    private const string TrackedWorldStateModifier = "InWorld";
+    public const string TrackedWorldStateModifier = "InWorld";
     private readonly Dictionary<string, int> _trackedWorldStates = new();
     
     public GoapWorldStatePlanningModel(GoapWorldStateMemento worldStateMemento)
@@ -31,10 +31,25 @@ public class GoapWorldStatePlanningModel
         _trackedWorldStates.Clear();
         foreach (var resourceInWorld in worldStateResources)
         {
-            SetTrackedState(resourceInWorld.Key.ToString(), resourceInWorld.Value.Count);
+            SetTrackedState(resourceInWorld.Key + "InWorld", resourceInWorld.Value.Count);
         }
     }
     
-    public int GetTrackedState(string key) => _trackedWorldStates.GetValueOrDefault(key + TrackedWorldStateModifier, 0);
-    public void SetTrackedState(string key, int value) => _trackedWorldStates[key + TrackedWorldStateModifier] = value;
+    public void UpdateState(string key, int value)
+    {
+        var current = GetTrackedState(key);
+        _trackedWorldStates[key] = current + value;
+    }
+
+    public void SyncState(GoapWorldStatePlanningModel otherModel)
+    {
+        _trackedWorldStates.Clear();
+        foreach (var kvp in otherModel._trackedWorldStates)
+        {
+            _trackedWorldStates.Add(kvp.Key, kvp.Value);
+        }
+    }
+    
+    public int GetTrackedState(string key) => _trackedWorldStates.GetValueOrDefault(key, 0);
+    public void SetTrackedState(string key, int value) => _trackedWorldStates[key] = value;
 }
