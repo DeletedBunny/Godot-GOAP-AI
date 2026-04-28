@@ -9,15 +9,14 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.PickUpAxe)]
 public class GoapActionPickUpAxe : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        var isAxeInWorld = worldStateMemento.GetResource(EntityType.Axe).Count > 0;
+        var isAxeInWorld = worldStateModel.GetState(EntityType.Axe) > 0;
 
-        var success = InitializeTargetInternal(worldStateMemento, previousAction?.GetTarget(), EntityType.Axe, isAxeInWorld);
-        if (success)
-        {
-            worldStateMemento.AddModifiedResource(EntityType.Axe, [Target], true);
-        }
+        if (!isAxeInWorld)
+            return;
+        
+        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), EntityType.Axe, true);
     }
 
     public override void ExecuteAction(double deltaTime)

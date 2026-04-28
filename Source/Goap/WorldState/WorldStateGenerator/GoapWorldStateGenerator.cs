@@ -16,7 +16,10 @@ public class GoapWorldStateGenerator : IGoapWorldStateGenerator
         var resourcesAmountByType = new Dictionary<EntityType, List<Node3D>>();
         AddStaticWorldResourcesToDictionary(worldCollectionsRootNode, resourcesAmountByType);
         AddDynamicItemsToDictionary(worldCollectionsRootNode, resourcesAmountByType);
-        return new GoapWorldStateModel(resourcesAmountByType).WithEmptyInitialization();
+        var worldState = new GoapWorldStateModel();
+        foreach (var (key, value) in resourcesAmountByType)
+            worldState.AddItems(key, value);
+        return worldState;
     }
 
     private static void AddStaticWorldResourcesToDictionary(Node worldCollectionsRootNode, Dictionary<EntityType, List<Node3D>> resourcesAmountByType)
