@@ -10,12 +10,16 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.MoveTo)]
 public class GoapActionMove : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
         if (moveToType == EntityType.None) 
             return;
         
-        InitializeTargetInternal(worldStateMemento, previousAction?.GetTarget(), moveToType, true);
+        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), moveToType, false);
+
+        if (Target == null) 
+            return;
+        
         ActionDataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
         ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>("Near" + moveToType, 1));
     }

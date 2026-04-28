@@ -5,22 +5,22 @@ using GodotGOAPAI.Source.EventSystem;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateGenerator;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
+using GodotGOAPAI.Source.WorldEntityItems.Constants;
 using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.WorldState;
 
 public partial class GoapWorldStateService : Node
 {
-	public static GoapWorldStateService Instance { get; set; }
+	public static GoapWorldStateService Instance { get; private set; }
 	
 	private readonly IGoapWorldStateGenerator _worldStateGenerator = new GoapWorldStateGenerator();
-	private readonly List<GoapWorldStateMemento> _worldStateMementos = new List<GoapWorldStateMemento>();
 	private readonly object _worldStateLock = new object();
 	
 	private Node _worldDataCollectionsNode;
 	private Node _agentsCollectionNode;
 
-	private GoapWorldStateModel _currentWorldStateModel;
+	private GoapWorldStateModel _currentWorldStateModelModel;
 
 	public Node WorldTreesCollectionNode => _worldDataCollectionsNode.GetNode("Trees");
 	public Node WorldMountainsCollectionNode => _worldDataCollectionsNode.GetNode("Mountains");
@@ -55,15 +55,15 @@ public partial class GoapWorldStateService : Node
 
 		lock (_worldStateLock)
 		{
-			foreach (var pairEntityNode in worldStateChangedEvent.ChangedNodes)
+			foreach (var kvp in worldStateChangedEvent.ChangedNodes)
 			{
 				if (worldStateChangedEvent.IsRemoved)
 				{
-					_currentWorldStateModel.RemoveItems(pairEntityNode.Key, pairEntityNode.Value);
+					_currentWorldStateModelModel.RemoveItems(kvp.Key, kvp.Value);
 				}
 				else
 				{
-					_currentWorldStateModel.AddItems(pairEntityNode.Key, pairEntityNode.Value);
+					_currentWorldStateModelModel.AddItems(kvp.Key, kvp.Value);
 				}
 			}
 		}
@@ -71,66 +71,52 @@ public partial class GoapWorldStateService : Node
 	
 	private void GenerateWorldState()
 	{
-		_currentWorldStateModel = _worldStateGenerator.GenerateWorldStateModel(_worldDataCollectionsNode, _agentsCollectionNode);
+		_currentWorldStateModelModel = _worldStateGenerator.GenerateWorldStateModel(_worldDataCollectionsNode, _agentsCollectionNode);
 	}
 
-	public GoapWorldStateMemento GetWorldStateMemento()
+	public GoapWorldStateModel GetWorldStateForSimulation(IEnumerable<(string, int)> agentInternalState)
 	{
 		lock (_worldStateLock)
 		{
-			var worldStateModelCopy = _currentWorldStateModel.GetCopy();
-			var worldStateMemento = new GoapWorldStateMemento(worldStateModelCopy);
-			_worldStateMementos.Add(worldStateMemento);
-			return worldStateMemento;
-		}
-	}
-
-	public void ApplyWorldStateMemento()
-	{
-		lock (_worldStateLock)
-		{
-			var worldStateMemento = _worldStateMementos.LastOrDefault();
-
-			if (worldStateMemento == null)
-			{
-				GenerateWorldState();
-				return;
-			}
-
-			worldStateMemento.ApplyModificationsToWorldState();
-			_currentWorldStateModel = worldStateMemento.GetWorldStateModel();
-			_worldStateMementos.RemoveAt(_worldStateMementos.Count - 1);
+			return _currentWorldStateModelModel.GetSimulationCopy(agentInternalState);
 		}
 	}
 
 	public void EntityPickedUp(Node3D entity)
 	{
-		lock (_worldStateLock)
+		if (entity is IEntity entityInterface)
 		{
-			if (entity is IEntity entityInterface)
+			lock (_worldStateLock)
 			{
-				_currentWorldStateModel.RemoveItems(entityInterface.EntityType, [entity]);
+				_currentWorldStateModelModel.RemoveItems(entityInterface.EntityType, [entity]);
 			}
-			else
-			{
-				GD.PrintErr($"EntityPickedUp: Entity {entity} is not an IEntity");
-				return;
-			}
+
+			return;
 		}
+
+		GD.PrintErr($"EntityPickedUp: Entity {entity} is not an IEntity");
 	}
 
 	public void EntityDropped(Node3D entity)
 	{
+		if (entity is IEntity entityInterface)
+		{
+			lock (_worldStateLock)
+			{
+				_currentWorldStateModelModel.AddItems(entityInterface.EntityType, [entity]);
+			}
+
+			return;
+		}
+		
+		GD.PrintErr($"EntityDropped: Entity {entity} is not an IEntity");
+	}
+
+	public void ReserveEntity(EntityType entityType, Node3D entityNode)
+	{
 		lock (_worldStateLock)
 		{
-			if (entity is IEntity entityInterface)
-			{
-				_currentWorldStateModel.AddItems(entityInterface.EntityType, [entity]);
-			}
-			else
-			{
-				GD.PrintErr($"EntityDropped: Entity {entity} is not an IEntity");
-			}
+			_currentWorldStateModelModel.RemoveItems(entityType, [entityNode]);
 		}
 	}
 	

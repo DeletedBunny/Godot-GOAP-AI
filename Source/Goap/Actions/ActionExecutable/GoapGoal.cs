@@ -33,7 +33,7 @@ public class GoapGoal : IGoapAction
         ActionPreconditionsComponent = actionPreconditions;
     }
 
-    public void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
+    public void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
         
     }

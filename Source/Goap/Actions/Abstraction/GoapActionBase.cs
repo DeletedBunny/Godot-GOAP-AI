@@ -24,7 +24,7 @@ public abstract class GoapActionBase : IGoapAction
     public GoapActionDataComponent ActionDataComponent { get; private set; }
     public GoapActionPreconditionComponent ActionPreconditionsComponent { get; private set; }
     public GoapActionEffectComponent ActionEffectsComponent { get; private set; }
-    protected Node3D Target { get; private set; }
+    protected Node3D Target { get; set; }
     protected Agent3D Agent { get; private set; }
 
     public void Initialize(
@@ -39,19 +39,20 @@ public abstract class GoapActionBase : IGoapAction
         Agent = agent;
     }
 
-    public abstract void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType);
+    public abstract void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
     public abstract void ExecuteAction(double deltaTime);
     public abstract bool IsCompletedConditionMet();
 
-    protected bool InitializeTargetInternal(GoapWorldStateMemento worldStateMemento, Node3D previousTarget, EntityType entityType,  bool conditionToMeet)
+    protected void InitializeTargetInternal(
+        GoapWorldStateModel worldStateModel, 
+        Node3D previousTarget, 
+        EntityType entityType,
+        bool shouldConsumeResource)
     {
-        if (conditionToMeet)
-        {
-            var startNode = previousTarget ?? Agent;
-            var closestNode = worldStateMemento.GetClosestElementByType(entityType, startNode);
-            Target = closestNode;
-        }
-        return conditionToMeet;
+        var startPosition = previousTarget?.GlobalPosition ?? Agent.GlobalPosition;
+        Target = shouldConsumeResource 
+                     ? worldStateModel.GetClosestAndRemove(entityType, startPosition) 
+                     : worldStateModel.GetClosest(entityType, startPosition);
     }
     
     public float CalculateCost()

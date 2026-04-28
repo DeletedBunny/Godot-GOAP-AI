@@ -9,15 +9,14 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.CutTree)]
 public class GoapActionCutTree : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        var isTreeInWorld = worldStateMemento.GetResource(EntityType.Tree).Count > 0;
+        var isTreeInWorld = worldStateModel.GetState(EntityType.Tree) > 0;
 
-        var success = InitializeTargetInternal(worldStateMemento, previousAction?.GetTarget(), EntityType.Tree, isTreeInWorld);
-        if (success)
-        {
-            worldStateMemento.AddModifiedResource(EntityType.Tree, [Target], true);
-        }
+        if (!isTreeInWorld)
+            return;
+        
+        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), EntityType.Tree, true);
     }
 
     public override void ExecuteAction(double deltaTime)

@@ -14,7 +14,7 @@ public interface IGoapAction
     GoapActionPreconditionComponent ActionPreconditionsComponent { get; }
     GoapActionEffectComponent ActionEffectsComponent { get; }
     void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions, GoapActionEffectComponent actionEffects);
-    void InitializeTarget(GoapWorldStateMemento worldStateMemento, IGoapAction previousAction, EntityType moveToType);
+    void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
     Node3D GetTarget();
     float CalculateCost();
     void ExecuteAction(double deltaTime);
