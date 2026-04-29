@@ -5,7 +5,6 @@ using Godot;
 using GodotGOAPAI.Source.Goap.Actions;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
-using GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 using GodotGOAPAI.Source.Goap.Actions.ActionsFactory;
 using GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
 using GodotGOAPAI.Source.Goap.Agent;
@@ -28,16 +27,11 @@ public class GoapPlanner
 
     public void Plan(Agent3D agent, GoapActionPreconditionComponent neededItemsToHave)
     {
-        var agentInternalState = agent.GetAgentWorldState().Select(x => ("Has" + x.Item1, x.Item2));
+        var agentInternalState = agent.GetAgentWorldState();
         var simulationStateModel = GoapWorldStateService.Instance.GetWorldStateForSimulation(agentInternalState);
 
         var planningTree = BuildTree(_goapActionsFactory.GetGoal(neededItemsToHave), simulationStateModel, agent);
-
-        var finalPlanResult = ValidateTreeAndCalculateCost(planningTree.Root, simulationStateModel, null);
-        if (finalPlanResult.Cost < float.MaxValue)
-        {
-            BuildExecutionQueue(planningTree.Root);
-        }
+        BuildExecutionQueue(planningTree.Root);
     }
 
     private GoapPlanningTree BuildTree(IGoapAction goal, GoapWorldStateModel simulationStateModel, Agent3D agent)
@@ -45,140 +39,74 @@ public class GoapPlanner
         var root = new GoapPlanningLeaf(goal);
         var planningTree = new GoapPlanningTree(root);
 
-        var unvisitedLeafs = new Queue<GoapPlanningLeaf>();
-        unvisitedLeafs.Enqueue(planningTree.Root);
-
-        while (unvisitedLeafs.Count > 0)
-        {
-            var currentLeaf = unvisitedLeafs.Dequeue();
-
-            var unmetPreconditions = currentLeaf.ActionInstance.ActionPreconditionsComponent.Preconditions
-                                                .Where(kvp => simulationStateModel.GetState(kvp.Key) < kvp.Value &&
-                                                              !kvp.Key.Contains("Near"))
-                                                .ToList();
-
-            if (unmetPreconditions.Count == 0)
-                continue;
-
-            foreach (var precondition in unmetPreconditions)
-            {
-                var matchingActions = GetMatchingActionsWithAmount(precondition);
-
-                foreach (var action in matchingActions)
-                {
-                    for (int i = 0; i < action.RepeatCount; i++)
-                    {
-                        var actionInstance = _goapActionsFactory.GetAction(action.Type, agent);
-                        var newLeaf = CreateLeaf(actionInstance);
-                        
-                        if (newLeaf.ActionInstance.ActionPreconditionsComponent.NeedsEntityNearby())
-                        {
-                            var moveToAction = _goapActionsFactory.GetMoveToAction(newLeaf.ActionInstance.ActionPreconditionsComponent.RequiredEntity, agent);
-                            var moveToLeaf = CreateLeaf(moveToAction);
-                            newLeaf.AddChild("Near" + newLeaf.ActionInstance.ActionPreconditionsComponent.RequiredEntity, moveToLeaf);
-                        }
-                        
-                        currentLeaf.AddChild(precondition.Key, newLeaf);
-                        unvisitedLeafs.Enqueue(newLeaf);
-                    }
-                }
-            }
-        }
+        var unvisitedLeafs = new Stack<GoapPlanningLeaf>();
+        unvisitedLeafs.Push(planningTree.Root);
+        
+        
+        IGoapAction rollingContextAction = null;
+        RecursiveLeafDfs(unvisitedLeafs, simulationStateModel, agent, rollingContextAction);
 
         return planningTree;
     }
 
-    private GoapValidationResult ValidateTreeAndCalculateCost(
-        GoapPlanningLeaf leaf, 
-        GoapWorldStateModel simulationStateModel,
-        IGoapAction previousAction)
+    private IGoapAction RecursiveLeafDfs(Stack<GoapPlanningLeaf> unvisitedLeafs, GoapWorldStateModel simulationStateModel, Agent3D agent, IGoapAction previousAction)
     {
-        GD.Print("Validating leaf: " + leaf.ActionInstance.Type);
-        var unmetPreconditions = leaf.ActionInstance.ActionPreconditionsComponent.Preconditions
-                                     .Where(kvp => simulationStateModel.GetState(kvp.Key) < kvp.Value)
-                                     .Select(kvp => kvp.Key)
-                                     .OrderBy(x => x.Contains("Near") ? 1 : 0)
-                                     .ToList();
-
+        var currentLeaf = unvisitedLeafs.Pop();
         var preconditionsTotalCost = 0f;
-        IGoapAction rollingContextAction = previousAction;
+        
+        var unmetPreconditions = currentLeaf.ActionInstance.PreconditionsComponent.Preconditions
+                                            .Where(kvp => FilterPreconditions(kvp, simulationStateModel))
+                                            .OrderBy(x => x.Key.StartsWith(GoapWorldStateConstants.HasModifierPrefix) ? 0 : 1)
+                                            .ToList();
 
         foreach (var precondition in unmetPreconditions)
         {
-            if (!leaf.Children.TryGetValue(precondition, out var children))
-                return new GoapValidationResult() { Cost = float.MaxValue };
-
-            var amountNeeded = leaf.ActionInstance.ActionPreconditionsComponent.Preconditions.First(kvp => kvp.Key.Equals(precondition)).Value;
-
-            var groupedActions = children.GroupBy(x => x.ActionInstance.Type);
-            var bestGroupResult = new GoapValidationResult() { Cost = float.MaxValue };
-            GoapWorldStateModel bestGroupWorldStateModel = null;
-
-            foreach (var group in groupedActions)
+            var matchingActions = GetMatchingActionsWithAmount(precondition, simulationStateModel, agent);
+            
+            foreach (var action in matchingActions)
             {
-                var sandboxWorldStateModel = simulationStateModel.Clone();
-                var groupCost = 0f;
-                var groupGatheredAmount = 0;
-                IGoapAction groupContextAction = rollingContextAction;
-                List<GoapPlanningLeaf> groupSelectedLeafs = new();
-                
-                foreach (var child in group)
+                var rollingStateForBranchingActions = matchingActions.Count > 1 ? simulationStateModel.Clone() : simulationStateModel;
+                for (int i = 0; i < action.RepeatCount; i++)
                 {
-                    if (groupGatheredAmount >= amountNeeded)
-                        break;
-
-                    var result = ValidateTreeAndCalculateCost(child, sandboxWorldStateModel, groupContextAction);
-
-                    if (result.Cost >= float.MaxValue)
-                        continue;
-                    
-                    groupCost += result.Cost;
-                    groupContextAction = result.Action;
-                    groupGatheredAmount += child.ActionInstance.ActionEffectsComponent.Effects.First(kvp => kvp.Key.Equals(precondition)).Value;
-                    groupSelectedLeafs.Add(child);
+                    var actionInstance = action.ActionInstance;
+                    if (action.RepeatCount > 1 && i > 0)
+                        actionInstance = _goapActionsFactory.GetAction(action.ActionInstance.Type, agent);
+                    var newLeaf = CreateLeaf(actionInstance);
+                    currentLeaf.AddChild(precondition.Key, newLeaf);
+                    unvisitedLeafs.Push(newLeaf);
+                    previousAction = RecursiveLeafDfs(unvisitedLeafs, rollingStateForBranchingActions, agent, previousAction);
                 }
-
-                if (groupGatheredAmount < amountNeeded || groupCost >= bestGroupResult.Cost) 
-                    continue;
-                
-                bestGroupResult = new GoapValidationResult() { Cost = groupCost, Action = groupContextAction };
-                bestGroupWorldStateModel = sandboxWorldStateModel;
-                children.ForEach(x => x.IsResolvable = false);
-                groupSelectedLeafs.ForEach(x => x.IsResolvable = true);
             }
-
-            if (bestGroupWorldStateModel == null || bestGroupResult.Cost >= float.MaxValue)
-                return new GoapValidationResult() { Cost = float.MaxValue };
-            
-            preconditionsTotalCost += bestGroupResult.Cost;
-            rollingContextAction = bestGroupResult.Action;
-            simulationStateModel.SyncState(bestGroupWorldStateModel);
         }
-
-        var parentActionRequiredEntity = leaf.Parent?.ActionInstance.ActionPreconditionsComponent.RequiredEntity;
-        var moveToType = leaf.ActionInstance.Type == GoapActionType.MoveTo 
-                             ? parentActionRequiredEntity
-                             : EntityType.None;
         
-        leaf.ActionInstance.InitializeTarget(simulationStateModel, rollingContextAction, moveToType ?? EntityType.None);
-
-        foreach (var effect in leaf.ActionInstance.ActionEffectsComponent.Effects)
+        if (!currentLeaf.ActionInstance.IsInitialized)
         {
-            if (effect.Key.Contains("Near"))
-                continue;
-            
+            currentLeaf.IsResolvable = currentLeaf.CheckIsResolvable(simulationStateModel);
+            var requiredEntity = currentLeaf.Parent?.ActionInstance.PreconditionsComponent.RequiredEntity ?? EntityType.None;
+            var entityType = currentLeaf.ActionInstance.Type == GoapActionType.MoveTo ? requiredEntity : EntityType.None;
+            currentLeaf.ActionInstance.InitializeTarget(simulationStateModel, previousAction, entityType);
+            previousAction = currentLeaf.ActionInstance;
+        }
+                
+        foreach (var effect in currentLeaf.ActionInstance.EffectsComponent.Effects)
+        {
             simulationStateModel.UpdateState(effect.Key, effect.Value);
         }
         
-        leaf.CachedTotalCost = leaf.CalculatedCost + preconditionsTotalCost;
-        leaf.IsResolvable = true;
-        
-        return new GoapValidationResult() { Cost = leaf.CachedTotalCost, Action = leaf.ActionInstance };
+        currentLeaf.WorldState = simulationStateModel;
+        currentLeaf.CachedTotalCost = currentLeaf.CalculatedCost + preconditionsTotalCost;
+        return previousAction;
+    }
+
+    private bool FilterPreconditions(KeyValuePair<string, int> precondition, GoapWorldStateModel simulationStateModel)
+    {
+        var stateValue = simulationStateModel.GetState(precondition.Key);
+        return stateValue < precondition.Value;
     }
 
     private void BuildExecutionQueue(GoapPlanningLeaf leaf)
     {
-        var sortedKeys = leaf.Children.Keys.OrderBy(x => x.Contains("Near") ? 1 : 0).ToList();
+        var sortedKeys = leaf.Children.Keys.OrderBy(x => x.Contains(GoapWorldStateConstants.NearEntityKey) ? 1 : 0).ToList();
         
         foreach (var key in sortedKeys)
         {
@@ -205,17 +133,25 @@ public class GoapPlanner
         return new GoapPlanningLeaf(action);
     }
 
-    private List<GoapPlanningAction> GetMatchingActionsWithAmount(KeyValuePair<string, int> actionPrecondition)
+    private List<GoapPlanningAction> GetMatchingActionsWithAmount(KeyValuePair<string, int> actionPrecondition, GoapWorldStateModel worldStateModel, Agent3D agent)
     {
-        var matchingActions = _goapActionsFactory.GetMatchingActionsByEffect(actionPrecondition.Key);
+        var emptyHandsString = GoapWorldStateConstants.HasModifierPrefix + GoapWorldStateConstants.AgentEmptyHandsKey;
+        var entityType = EntityType.None;
+        if (actionPrecondition.Key.Equals(emptyHandsString) && actionPrecondition.Value > 0)
+            entityType = worldStateModel.GetEntityStringFromPartialKey(GoapWorldStateConstants.HasModifierPrefix, [emptyHandsString]);
+        var matchingActions = _goapActionsFactory.GetMatchingActionsByEffect(actionPrecondition.Key, entityType, agent);
 
-        matchingActions.ForEach(action =>
+        var goapPlanningActions = matchingActions.Select<IGoapAction, GoapPlanningAction>(action =>
         {
+            if (action.Type == GoapActionType.MoveTo)
+                return new () { ActionInstance = action, RepeatCount = 1 };
+            
             var effect = action.EffectsComponent.Effects.First(kvp => kvp.Key.Equals(actionPrecondition.Key));
-            action.RepeatCount = (int)Math.Ceiling(actionPrecondition.Value / (float)effect.Value);
-        });
+            var repeatCount = (int)Math.Ceiling(actionPrecondition.Value / (float)effect.Value);
+            return new() { ActionInstance = action, RepeatCount = repeatCount };
+        }).ToList();
 
-        return matchingActions;
+        return goapPlanningActions;
     }
 
     public void Execute(double deltaTime)
@@ -229,6 +165,7 @@ public class GoapPlanner
         }
         catch (Exception ex)
         {
+            _goapPlannerExecutionQueue.ClearQueue();
             GD.PrintErr(nameof(GoapPlanner) + " encountered an error executing action: " + ex);
         }
     }

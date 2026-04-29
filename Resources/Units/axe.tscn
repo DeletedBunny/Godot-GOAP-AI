@@ -1,19 +1,21 @@
 [gd_scene format=3 uid="uid://dtoqat0o33cxa"]
 
 [ext_resource type="Texture2D" uid="uid://8r2va8kv0a8c" path="res://Resources/source pictures/axe.png" id="1_p1phs"]
-[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/Goap/Custom Resource/GoapResource.cs" id="2_1tpuu"]
-[ext_resource type="Script" uid="uid://bd4ue8i03vp40" path="res://Source/ResourceItems/AxeEntity.cs" id="2_2pyi7"]
+[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/Goap/CustomResource/GoapResource.cs" id="2_1tpuu"]
+[ext_resource type="Script" uid="uid://bd4ue8i03vp40" path="res://Source/WorldEntityItems/AxeEntity.cs" id="2_2pyi7"]
 
 [sub_resource type="Resource" id="Resource_2pyi7"]
 script = ExtResource("2_1tpuu")
 metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
-[node name="Axe" type="Sprite3D" unique_id=974572462]
+[node name="Axe" type="Node3D" unique_id=473328380]
+script = ExtResource("2_2pyi7")
+metadata/GoapResourceType = SubResource("Resource_2pyi7")
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=974572462]
 offset = Vector2(-25, 50)
 pixel_size = 0.002
 billboard = 2
 double_sided = false
 render_priority = 1
 texture = ExtResource("1_p1phs")
-script = ExtResource("2_2pyi7")
-metadata/GoapResourceType = SubResource("Resource_2pyi7")

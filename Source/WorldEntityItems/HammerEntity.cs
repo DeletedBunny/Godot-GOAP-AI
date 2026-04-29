@@ -3,7 +3,7 @@ using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.WorldEntityItems;
 
-public partial class AxeEntity : PickupEntityBase
+public partial class HammerEntity : PickupEntityBase
 {
-	public override EntityType EntityType => EntityType.Axe;
+	public override EntityType EntityType => EntityType.Hammer;
 }

@@ -22,30 +22,27 @@ public class GoapGoal : IGoapAction
             return GoapActionType.Unknown;
         } 
     }
+    
+    public bool IsInitialized { get; protected set; }
 
-    public GoapActionDataComponent ActionDataComponent { get; } = new();
-    public GoapActionPreconditionComponent ActionPreconditionsComponent { get; private set; }
-    public GoapActionEffectComponent ActionEffectsComponent { get; } = new();
+    public GoapActionDataComponent DataComponent { get; } = new();
+    public GoapActionPreconditionComponent PreconditionsComponent { get; private set; }
+    public GoapActionEffectComponent EffectsComponent { get; } = new();
 
     public void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
     {
-        ActionPreconditionsComponent = actionPreconditions;
+        PreconditionsComponent = actionPreconditions;
     }
 
     public void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        
+        IsInitialized = true;
     }
 
     public Node3D GetTarget()
     {
         return null;
-    }
-
-    public float CalculateCost()
-    {
-        return 0f;
     }
 
     public void ExecuteAction(double deltaTime)

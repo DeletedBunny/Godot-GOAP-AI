@@ -5,33 +5,26 @@ using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 
-[GoapAction(GoapActionType.PickUpAxe)]
-public class GoapActionPickUpAxe : GoapActionBase
+[GoapAction(GoapActionType.DropItem)]
+public class GoapActionDropItem : GoapActionBase
 {
     public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        var isAxeInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
-
-        if (!isAxeInWorld)
-            return;
-        
-        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);
         IsInitialized = true;
     }
 
     public override void ExecuteAction(double deltaTime)
     {
-        if (!IsNearPosition())
+        if (!Agent.IsHoldingAnyItemInHand())
         {
             return;
         }
         
-        var target = Target as IPickupEntity;
-        Agent.AddItemToHand(target);
+        Agent.RemoveItemFromHand();
     }
 
     public override bool IsCompletedConditionMet()
     {
-        return Agent.IsEntityTypeInHand(PreconditionsComponent.RequiredEntity);
+        return !Agent.IsHoldingAnyItemInHand();
     }
 }
