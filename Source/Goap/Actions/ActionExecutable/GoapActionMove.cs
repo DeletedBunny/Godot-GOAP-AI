@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using Godot;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -20,8 +18,9 @@ public class GoapActionMove : GoapActionBase
         if (Target == null) 
             return;
         
-        ActionDataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
-        ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>("Near" + moveToType, 1));
+        DataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
+        IsInitialized = true;
+        //ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>(GoapWorldStateConstants.NearEntityKey + moveToType, 1));
     }
 
     public override void ExecuteAction(double deltaTime)

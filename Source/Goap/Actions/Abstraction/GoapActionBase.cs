@@ -20,10 +20,11 @@ public abstract class GoapActionBase : IGoapAction
             return GoapActionType.Unknown;
         }
     }
-
-    public GoapActionDataComponent ActionDataComponent { get; private set; }
-    public GoapActionPreconditionComponent ActionPreconditionsComponent { get; private set; }
-    public GoapActionEffectComponent ActionEffectsComponent { get; private set; }
+    
+    public bool IsInitialized { get; protected set; }
+    public GoapActionDataComponent DataComponent { get; private set; }
+    public GoapActionPreconditionComponent PreconditionsComponent { get; private set; }
+    public GoapActionEffectComponent EffectsComponent { get; private set; }
     protected Node3D Target { get; set; }
     protected Agent3D Agent { get; private set; }
 
@@ -33,9 +34,9 @@ public abstract class GoapActionBase : IGoapAction
         GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
     {
-        ActionDataComponent = actionData;
-        ActionPreconditionsComponent = actionPreconditions;
-        ActionEffectsComponent = actionEffects;
+        DataComponent = actionData;
+        PreconditionsComponent = actionPreconditions;
+        EffectsComponent = actionEffects;
         Agent = agent;
     }
 
@@ -50,14 +51,9 @@ public abstract class GoapActionBase : IGoapAction
         bool shouldConsumeResource)
     {
         var startPosition = previousTarget?.GlobalPosition ?? Agent.GlobalPosition;
-        Target = shouldConsumeResource 
-                     ? worldStateModel.GetClosestAndRemove(entityType, startPosition) 
-                     : worldStateModel.GetClosest(entityType, startPosition);
-    }
-    
-    public float CalculateCost()
-    {
-        return ActionDataComponent.CalculatedCost;
+            Target = shouldConsumeResource 
+                          ? worldStateModel.GetClosestAndRemove(entityType, startPosition) 
+                          : worldStateModel.GetClosest(entityType, startPosition);
     }
     
     public Node3D GetTarget()

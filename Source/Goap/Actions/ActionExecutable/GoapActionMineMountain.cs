@@ -6,14 +6,14 @@ using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 
-[GoapAction(GoapActionType.CutTree)]
-public class GoapActionCutTree : GoapActionBase
+[GoapAction(GoapActionType.MineMountain)]
+public class GoapActionMineMountain : GoapActionBase
 {
     public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        var isTreeInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
+        var isMountainInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
 
-        if (!isTreeInWorld)
+        if (!isMountainInWorld)
             return;
         
         InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);

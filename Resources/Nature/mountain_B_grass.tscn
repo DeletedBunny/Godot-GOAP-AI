@@ -1,5 +1,34 @@
-[gd_scene load_steps=2 format=3 uid="uid://cj1sav1kuf82v"]
+[gd_scene format=3 uid="uid://cj1sav1kuf82v"]
 
 [ext_resource type="PackedScene" uid="uid://jcr8j0gxp4qk" path="res://Resources/gltf/mountain_B_grass.gltf" id="1_vmmvs"]
+[ext_resource type="Script" uid="uid://dcupt0i0q0n1j" path="res://Source/WorldEntityItems/MountainEntity.cs" id="2_7shli"]
+[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/Goap/CustomResource/GoapResource.cs" id="2_ots1x"]
 
-[node name="mountain_B_grass" instance=ExtResource("1_vmmvs")]
+[sub_resource type="Resource" id="Resource_7shli"]
+script = ExtResource("2_ots1x")
+EntityType = 5
+metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
+
+[sub_resource type="Animation" id="Animation_ots1x"]
+resource_name = "bloop"
+length = 0.5
+tracks/0/type = "scale_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("mountain_B_grass")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 1, 1, 1, 0.1, 1, 0.75, 0.75, 0.75, 0.3, 1, 1.15, 1.15, 1.15, 0.5, 1, 1, 1, 1)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_7shli"]
+_data = {
+&"bloop": SubResource("Animation_ots1x")
+}
+
+[node name="mountain_B_grass" unique_id=615604341 node_paths=PackedStringArray("_animationPlayer") instance=ExtResource("1_vmmvs")]
+script = ExtResource("2_7shli")
+_animationPlayer = NodePath("AnimationPlayer")
+metadata/GoapResourceType = SubResource("Resource_7shli")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=1965904060]
+libraries/ = SubResource("AnimationLibrary_7shli")

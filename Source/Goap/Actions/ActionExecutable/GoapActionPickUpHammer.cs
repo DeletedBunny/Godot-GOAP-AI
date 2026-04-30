@@ -1,4 +1,3 @@
-using System;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -6,14 +5,14 @@ using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 
-[GoapAction(GoapActionType.CutTree)]
-public class GoapActionCutTree : GoapActionBase
+[GoapAction(GoapActionType.PickUpHammer)]
+public class GoapActionPickUpHammer : GoapActionBase
 {
     public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        var isTreeInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
+        var isHammerInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
 
-        if (!isTreeInWorld)
+        if (!isHammerInWorld)
             return;
         
         InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);
@@ -27,17 +26,12 @@ public class GoapActionCutTree : GoapActionBase
             return;
         }
         
-        var target = Target as IInteractableEntity;
-        Agent.InteractOn(target, deltaTime);
+        var target = Target as IPickupEntity;
+        Agent.AddItemToHand(target);
     }
-    
+
     public override bool IsCompletedConditionMet()
     {
-        if (Target is IInteractableEntity target)
-        {
-            return target.IsEntityDestroyed;
-        }
-
-        throw new Exception("Target is not an interactable entity, breaking...");
+        return Agent.IsEntityTypeInHand(PreconditionsComponent.RequiredEntity);
     }
 }

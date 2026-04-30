@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using GodotGOAPAI.Source.Goap.WorldState;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap.Agent;
@@ -11,6 +12,7 @@ public class AgentInventory
     private readonly Dictionary<EntityType, int> _inventory;
     
     public bool IsInventoryFull => _inventory?.Count >= _slots;
+    public bool IsAnyItemInInventory => _inventory?.Count > 0;
 
     public AgentInventory(int slots, Dictionary<EntityType, int> startingInventory = null)
     {
@@ -81,9 +83,11 @@ public class AgentInventory
     {
         return _inventory.ContainsKey(entityType) && _inventory[entityType] >= requiredAmount;
     }
+    
+    public List<EntityType> GetEntitiesInInventory() => _inventory.Keys.ToList();
 
     public List<(string, int)> GetInventoryState()
     {
-        return _inventory.Select(item => (item.Key.ToString(), item.Value)).ToList();
+        return _inventory.Select(item => (GoapWorldStateConstants.HasModifierPrefix + item.Key, item.Value)).ToList();
     }
 }

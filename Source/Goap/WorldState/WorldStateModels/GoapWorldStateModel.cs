@@ -11,6 +11,7 @@ public class GoapWorldStateModel
     private readonly object _lock = new();
     private readonly Dictionary<string, int> _virtualStates = new();
     private readonly Dictionary<EntityType, List<Node3D>> _physicalResources = new();
+    private readonly Dictionary<EntityType, int> _physicalResourcesSimulatedChanges = new();
 
     public GoapWorldStateModel()
     {
@@ -57,7 +58,10 @@ public class GoapWorldStateModel
 
     public GoapWorldStateModel Clone()
     {
-        return new GoapWorldStateModel(_virtualStates, _physicalResources);
+        var clonedModel = new GoapWorldStateModel(_virtualStates, _physicalResources);
+        foreach (var (key, value) in _physicalResourcesSimulatedChanges)
+            clonedModel._physicalResourcesSimulatedChanges[key] = value;
+        return clonedModel;
     }
     
     public void SyncState(GoapWorldStateModel other)
@@ -71,32 +75,56 @@ public class GoapWorldStateModel
             _physicalResources.Clear();
             foreach (var kvp in other._physicalResources)
                 _physicalResources.Add(kvp.Key, new List<Node3D>(kvp.Value));
+            
+            _physicalResourcesSimulatedChanges.Clear();
+            foreach (var kvp in other._physicalResourcesSimulatedChanges)
+                _physicalResourcesSimulatedChanges.Add(kvp.Key, kvp.Value);
         }
     }
 
     public int GetState(string key)
     {
-        if (key.EndsWith("InWorld"))
+        if (key.EndsWith(GoapWorldStateConstants.InWorldModifierPostfix))
         {
-            var typeString = key.Replace("InWorld", "");
-            if(Enum.TryParse<EntityType>(typeString, out var type))
-                return _physicalResources.TryGetValue(type, out var nodes) ? nodes.Count : 0;
+            var typeString = key.Replace(GoapWorldStateConstants.InWorldModifierPostfix, "");
+            if (Enum.TryParse<EntityType>(typeString, out var type))
+            {
+                var physicalCount = _physicalResources.TryGetValue(type, out var nodes) ? nodes.Count : 0;
+                var simulatedCount =_physicalResourcesSimulatedChanges.GetValueOrDefault(type, 0);
+                return physicalCount + simulatedCount;
+            }
         }
         
         return _virtualStates.GetValueOrDefault(key, 0);
     }
+
+    public EntityType GetEntityStringFromPartialKey(string key, string[] ignoreKeys)
+    {
+        var entityString = _virtualStates.FirstOrDefault(kvp => !ignoreKeys.Contains(kvp.Key) && kvp.Key.Contains(key)).Key.Replace(key, "");
+        return Enum.TryParse<EntityType>(entityString, out var entityType) 
+                   ? entityType 
+                   : EntityType.None;
+    }
     
-    public int GetState(EntityType entityType) => _physicalResources.TryGetValue(entityType, out var nodes) ? nodes.Count : 0;
+    public int GetPhysicalState(EntityType entityType) => _physicalResources.TryGetValue(entityType, out var nodes) ? nodes.Count : 0;
 
     public void UpdateState(string key, int valueDelta)
     {
-        if (key.EndsWith("InWorld"))
-            return;
+        if (key.EndsWith(GoapWorldStateConstants.InWorldModifierPostfix))
+        {
+            var typeString = key.Replace(GoapWorldStateConstants.InWorldModifierPostfix, "");
+            if (Enum.TryParse<EntityType>(typeString, out var type))
+            {
+                var simulatedDelta = _physicalResourcesSimulatedChanges.GetValueOrDefault(type, 0);
+                _physicalResourcesSimulatedChanges[type] = simulatedDelta + valueDelta;
+                return;
+            }
+        }
         
         _virtualStates[key] = GetState(key) + valueDelta;
     }
     
-    private void SetState(string key, int value) => _virtualStates[key] = value;
+    public void SetState(string key, int value) => _virtualStates[key] = value;
 
     public Node3D GetClosestAndRemove(EntityType entityType, Vector3 fromPosition)
     {

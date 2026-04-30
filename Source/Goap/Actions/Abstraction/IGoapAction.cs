@@ -10,13 +10,13 @@ namespace GodotGOAPAI.Source.Goap.Actions.Abstraction;
 public interface IGoapAction
 {
     GoapActionType Type { get; }
-    GoapActionDataComponent ActionDataComponent { get; }
-    GoapActionPreconditionComponent ActionPreconditionsComponent { get; }
-    GoapActionEffectComponent ActionEffectsComponent { get; }
+    bool IsInitialized { get; }
+    GoapActionDataComponent DataComponent { get; }
+    GoapActionPreconditionComponent PreconditionsComponent { get; }
+    GoapActionEffectComponent EffectsComponent { get; }
     void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions, GoapActionEffectComponent actionEffects);
     void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
     Node3D GetTarget();
-    float CalculateCost();
     void ExecuteAction(double deltaTime);
     bool IsCompletedConditionMet();
 }

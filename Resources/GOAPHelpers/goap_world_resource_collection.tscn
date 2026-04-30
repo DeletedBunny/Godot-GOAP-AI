@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://cfa2mx633i8me"]
+
+[ext_resource type="Script" uid="uid://brsx2wo4fqjd6" path="res://Source/Goap/CustomResource/GoapResource.cs" id="1_lrrte"]
+[ext_resource type="PackedScene" uid="uid://cfoa214q5a61k" path="res://Resources/Nature/tree.tscn" id="2_2q5ol"]
+[ext_resource type="PackedScene" uid="uid://dtoqat0o33cxa" path="res://Resources/Units/axe.tscn" id="3_j2ehs"]
+[ext_resource type="PackedScene" uid="uid://c1x4jio8cxvx" path="res://Resources/Units/hammer.tscn" id="4_alyri"]
+
+[sub_resource type="Resource" id="Resource_v8pb2"]
+script = ExtResource("1_lrrte")
+EntityType = 4
+metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
+
+[sub_resource type="Resource" id="Resource_sgeoj"]
+script = ExtResource("1_lrrte")
+EntityType = 5
+metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
+
+[sub_resource type="Resource" id="Resource_0qqtf"]
+script = ExtResource("1_lrrte")
+EntityType = 6
+metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
+
+[node name="GoapWorldResourceCollection" type="Node" unique_id=375965835]
+
+[node name="Trees" type="Node" parent="." unique_id=921625557]
+metadata/GoapResourceType = SubResource("Resource_v8pb2")
+
+[node name="Tree" parent="Trees" unique_id=895995583 instance=ExtResource("2_2q5ol")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6644, 1, -0.847773)
+
+[node name="Tree2" parent="Trees" unique_id=630146064 instance=ExtResource("2_2q5ol")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.737, 1, -2.5002)
+
+[node name="Tree3" parent="Trees" unique_id=2070791294 instance=ExtResource("2_2q5ol")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.47782, 1, -1.20205)
+
+[node name="Tree4" parent="Trees" unique_id=644806060 instance=ExtResource("2_2q5ol")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.27515, 1, -0.857691)
+
+[node name="Tree5" parent="Trees" unique_id=1418638897 instance=ExtResource("2_2q5ol")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.58901, 1, 0.376158)
+
+[node name="Mountains" type="Node" parent="." unique_id=398824652]
+metadata/GoapResourceType = SubResource("Resource_sgeoj")
+
+[node name="Bushes" type="Node" parent="." unique_id=1470599990]
+metadata/GoapResourceType = SubResource("Resource_0qqtf")
+
+[node name="Items" type="Node" parent="." unique_id=593753073]
+
+[node name="Axe" parent="Items" unique_id=473328380 instance=ExtResource("3_j2ehs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.621755, 1, -0.468182)
+
+[node name="Axe2" parent="Items" unique_id=1684243617 instance=ExtResource("3_j2ehs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.82524, 1, -1.12257)
+
+[node name="Hammer" parent="Items" unique_id=507117740 instance=ExtResource("4_alyri")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2.15065)
