@@ -41,7 +41,7 @@ public partial class GoapMainController : Node
 		{
 			var agent = _agentsCollectionNode.GetChild(0);
 			var goal = new GoapActionPreconditionComponent() { Preconditions = [
-				new("StoneInWorld", 3),
+				new("StoneInWorld", 5),
 				new ("LogInWorld", 4)
 			] };
 			_planner.Plan(agent as Agent3D, goal);
