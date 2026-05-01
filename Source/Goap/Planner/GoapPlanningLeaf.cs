@@ -7,13 +7,13 @@ namespace GodotGOAPAI.Source.Goap.Planner;
 
 public class GoapPlanningLeaf
 {
+    public int PathId { get; set; }
     public IGoapAction ActionInstance { get; }
     
     public GoapPlanningLeaf Parent { get; set; }
     public Dictionary<string, List<GoapPlanningLeaf>> Children { get; } = new();
     public GoapWorldStateModel WorldState { get; set; }
     
-    public float CalculatedCost => ActionInstance.DataComponent.CalculatedCost;
     public float CachedTotalCost { get; set; }
     public bool IsResolvable { get; set; }
 
@@ -36,7 +36,22 @@ public class GoapPlanningLeaf
         });
         return isResolvableChildren;
     }
-    
+
+    public float CalculateTotalCost()
+    {
+        var leafCost = ActionInstance.DataComponent.CalculatedCost;
+        var childrenGrouped = Children.Values.SelectMany(x => x)
+                                      .GroupBy(x => x.PathId)
+                                      .ToDictionary(x => x.Key, x => x.ToList());
+        
+        if (childrenGrouped.Count == 0)
+            return leafCost;
+        
+        return childrenGrouped.OrderBy(x => x.Value.Sum(y => y.CachedTotalCost))
+                              .First()
+                              .Value
+                              .Sum(x => x.CachedTotalCost) + leafCost;
+    }
 
     public void AddChild(string preconditionMetKey, GoapPlanningLeaf child)
     {
