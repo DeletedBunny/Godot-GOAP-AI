@@ -42,9 +42,7 @@ public class GoapPlanner
         var unvisitedLeafs = new Stack<GoapPlanningLeaf>();
         unvisitedLeafs.Push(planningTree.Root);
         
-        
-        IGoapAction rollingContextAction = null;
-        RecursiveLeafDfs(unvisitedLeafs, simulationStateModel, agent, rollingContextAction);
+        RecursiveLeafDfs(unvisitedLeafs, simulationStateModel, agent, null);
 
         return planningTree;
     }
@@ -52,7 +50,7 @@ public class GoapPlanner
     private IGoapAction RecursiveLeafDfs(Stack<GoapPlanningLeaf> unvisitedLeafs, GoapWorldStateModel simulationStateModel, Agent3D agent, IGoapAction previousAction)
     {
         var currentLeaf = unvisitedLeafs.Pop();
-        var preconditionsTotalCost = 0f;
+        IGoapAction rollingContextAction = previousAction;
         
         var unmetPreconditions = currentLeaf.ActionInstance.PreconditionsComponent.Preconditions
                                             .Where(kvp => FilterPreconditions(kvp, simulationStateModel))
@@ -62,9 +60,11 @@ public class GoapPlanner
         foreach (var precondition in unmetPreconditions)
         {
             var matchingActions = GetMatchingActionsWithAmount(precondition, simulationStateModel, agent);
-            
+
+            var matchingActionCounter = -1;
             foreach (var action in matchingActions)
             {
+                matchingActionCounter++;
                 var rollingStateForBranchingActions = matchingActions.Count > 1 ? simulationStateModel.Clone() : simulationStateModel;
                 for (int i = 0; i < action.RepeatCount; i++)
                 {
@@ -72,9 +72,10 @@ public class GoapPlanner
                     if (action.RepeatCount > 1 && i > 0)
                         actionInstance = _goapActionsFactory.GetAction(action.ActionInstance.Type, agent);
                     var newLeaf = CreateLeaf(actionInstance);
+                    newLeaf.PathId = currentLeaf.PathId > matchingActionCounter ? currentLeaf.PathId : matchingActionCounter;
                     currentLeaf.AddChild(precondition.Key, newLeaf);
                     unvisitedLeafs.Push(newLeaf);
-                    previousAction = RecursiveLeafDfs(unvisitedLeafs, rollingStateForBranchingActions, agent, previousAction);
+                    rollingContextAction = RecursiveLeafDfs(unvisitedLeafs, rollingStateForBranchingActions, agent, rollingContextAction);
                 }
             }
         }
@@ -84,8 +85,8 @@ public class GoapPlanner
             currentLeaf.IsResolvable = currentLeaf.CheckIsResolvable(simulationStateModel);
             var requiredEntity = currentLeaf.Parent?.ActionInstance.PreconditionsComponent.RequiredEntity ?? EntityType.None;
             var entityType = currentLeaf.ActionInstance.Type == GoapActionType.MoveTo ? requiredEntity : EntityType.None;
-            currentLeaf.ActionInstance.InitializeTarget(simulationStateModel, previousAction, entityType);
-            previousAction = currentLeaf.ActionInstance;
+            currentLeaf.ActionInstance.InitializeTarget(simulationStateModel, rollingContextAction, entityType);
+            rollingContextAction = currentLeaf.ActionInstance;
         }
                 
         foreach (var effect in currentLeaf.ActionInstance.EffectsComponent.Effects)
@@ -94,8 +95,8 @@ public class GoapPlanner
         }
         
         currentLeaf.WorldState = simulationStateModel;
-        currentLeaf.CachedTotalCost = currentLeaf.CalculatedCost + preconditionsTotalCost;
-        return previousAction;
+        currentLeaf.CachedTotalCost = currentLeaf.CalculateTotalCost();
+        return rollingContextAction;
     }
 
     private bool FilterPreconditions(KeyValuePair<string, int> precondition, GoapWorldStateModel simulationStateModel)
@@ -106,16 +107,31 @@ public class GoapPlanner
 
     private void BuildExecutionQueue(GoapPlanningLeaf leaf)
     {
-        var sortedKeys = leaf.Children.Keys.OrderBy(x => x.Contains(GoapWorldStateConstants.NearEntityKey) ? 1 : 0).ToList();
-        
-        foreach (var key in sortedKeys)
-        {
-            var children = leaf.Children[key];
-            var selectedChildren = children.Where(x => x.IsResolvable);
+        var allResolvableChildren = leaf.Children.Values
+                                        .SelectMany(x => x)
+                                        .Where(x => x.IsResolvable)
+                                        .ToList();
 
-            foreach (var child in selectedChildren)
+        if (allResolvableChildren.Count > 0)
+        {
+            var bestPathId = allResolvableChildren
+                             .GroupBy(x => x.PathId)
+                             .OrderBy(x => x.Sum(y => y.CachedTotalCost))
+                             .First()
+                             .Key;
+
+            var sortedKeys = leaf.Children.Keys
+                                 .OrderBy(x => x.Contains(GoapWorldStateConstants.NearEntityKey) ? 1 : 0)
+                                 .ToList();
+
+            foreach (var key in sortedKeys)
             {
-                BuildExecutionQueue(child);
+                var children = leaf.Children[key].Where(x => x.IsResolvable && x.PathId == bestPathId);
+
+                foreach (var child in children)
+                {
+                    BuildExecutionQueue(child);
+                }
             }
         }
 
