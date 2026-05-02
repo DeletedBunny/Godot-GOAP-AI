@@ -76,4 +76,9 @@ public class GoapPlanningLeaf
                 Children.Remove(key);
         }
     }
+    
+    public override string ToString()
+    {
+        return $"{ActionInstance.Type} - {ActionInstance.PreconditionsComponent.Preconditions.Count} preconditions\n";
+    }
 }

@@ -6,8 +6,16 @@ public enum GoapActionType
     MoveTo,
     CutTree,
     MineMountain,
+    GeneralPickup,
     PickUpAxe,
     PickUpHammer,
     DropItem,
+    GeneralBuild,
+    BuildHomeA,
+    GeneralDeliverResourceToBuildZone,
+    DeliverLogToBuildZone,
+    DeliverStoneToBuildZone,
+    PickupLog,
+    PickupStone,
     PlanningTreeRoot
 }

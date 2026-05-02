@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://cdr5skbxn8nmu"]
+
+[ext_resource type="Script" uid="uid://db483x1ipd1rf" path="res://Source/UI/BuildIcon.cs" id="1_jwpq1"]
+[ext_resource type="PackedScene" uid="uid://dinchk8o84hav" path="res://Resources/Buildings/building_home_A_yellow.tscn" id="1_wxspm"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_jwpq1"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="LabelSettings" id="LabelSettings_yr25i"]
+font_size = 24
+
+[node name="Home_A" type="PanelContainer" unique_id=1394237921]
+custom_minimum_size = Vector2(100, 100)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -128.0
+offset_top = -156.5
+offset_right = 128.0
+offset_bottom = 156.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_jwpq1")
+BuildingType = 7
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=223333522]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer" unique_id=1830771809]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/CenterContainer" unique_id=564012012]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("ViewportTexture_jwpq1")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1905306301]
+layout_mode = 2
+text = "Home A"
+label_settings = SubResource("LabelSettings_yr25i")
+horizontal_alignment = 1
+
+[node name="SubViewport" type="SubViewport" parent="." unique_id=1328885105]
+own_world_3d = true
+transparent_bg = true
+gui_disable_input = true
+size = Vector2i(256, 256)
+
+[node name="building_home_A_yellow" parent="SubViewport" unique_id=1152788705 instance=ExtResource("1_wxspm")]
+_isIcon = true
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport" unique_id=319833929]
+transform = Transform3D(0.70710677, -0.29883623, 0.6408563, 0, 0.90630776, 0.42261827, -0.70710677, -0.29883623, 0.6408563, 0.8, 0.97, 0.8)
+projection = 1
+size = 1.2
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewport" unique_id=853390463]
+transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70710677, -0.70710677, -0.49999997, 0.49999997, 0, 0, 0)

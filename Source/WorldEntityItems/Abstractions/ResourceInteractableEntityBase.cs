@@ -16,7 +16,7 @@ public abstract partial class ResourceInteractableEntityBase : BaseEntity, IInte
     
     protected abstract string AnimationName { get; }
     
-    public bool IsEntityDestroyed { get; protected set; } = false;
+    public bool IsEntityInteractionFinished { get; protected set; } = false;
     public abstract EntityType RequiredEntityTypeForInteraction { get; }
     public abstract EntityType ResourceEntityTypeToSpawnOnDestroy { get; }
     public abstract int ResourceToSpawnAmount { get; }
@@ -24,7 +24,7 @@ public abstract partial class ResourceInteractableEntityBase : BaseEntity, IInte
 
     public virtual void Interact(double deltaTime)
     {
-        if (IsEntityDestroyed)
+        if (IsEntityInteractionFinished)
             return;
         
         _deltaTimeCummulative += deltaTime;
@@ -47,7 +47,15 @@ public abstract partial class ResourceInteractableEntityBase : BaseEntity, IInte
                 }, 
                 IsRemoved = false
             });
-            IsEntityDestroyed = true;
+            EventBus.Instance.SendEvent(new WorldStateChangedEvent()
+            {
+                ChangedNodes = new()
+                {
+                    { EntityType, [this] }
+                },
+                IsRemoved = true
+            });
+            IsEntityInteractionFinished = true;
             QueueFree();
             return;
         }

@@ -1,8 +1,8 @@
 using System;
 using Godot;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.Goap.Actions.ActionComponents;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
-using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -28,6 +28,7 @@ public class GoapGoal : IGoapAction
     public GoapActionDataComponent DataComponent { get; } = new();
     public GoapActionPreconditionComponent PreconditionsComponent { get; private set; }
     public GoapActionEffectComponent EffectsComponent { get; } = new();
+    public GoapActionTargetProvider TargetProvider { get; } = new();
 
     public void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
@@ -35,7 +36,8 @@ public class GoapGoal : IGoapAction
         PreconditionsComponent = actionPreconditions;
     }
 
-    public void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
+    public void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
+
     {
         IsInitialized = true;
     }

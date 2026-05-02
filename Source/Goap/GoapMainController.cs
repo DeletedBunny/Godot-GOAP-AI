@@ -5,6 +5,7 @@ using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
+using GodotGOAPAI.Source.UI;
 using GodotGOAPAI.Source.World;
 
 namespace GodotGOAPAI.Source.Goap;
@@ -14,12 +15,13 @@ public partial class GoapMainController : Node
 	private readonly GoapPlanner _planner = new();
 	[Export] private Node _agentsCollectionNode;
 	[Export] private Node _worldDataCollectionsNode;
-	
-	private bool _start;
+
+	private bool _planningStarted;
 
 	public override void _Ready()
 	{
 		EventBus.Instance.Subscribe<WorldReadyEvent>(OnWorldReady);
+		EventBus.Instance.Subscribe<PlanBuildEvent>(OnBuildEvent);
 		base._Ready();
 	}
 
@@ -32,22 +34,20 @@ public partial class GoapMainController : Node
 		EventBus.Instance.SendEvent(new RegisterWorldCollectionNodesEvent(_worldDataCollectionsNode, _agentsCollectionNode));
 	}
 
+	private void OnBuildEvent(IEvent buildEvent)
+	{
+		if (buildEvent is not PlanBuildEvent planBuildEvent || _planningStarted || _planner.IsExecuting)
+			return;
+
+		_planningStarted = true;
+		GoapEntityToGoalFactory.EntityToGoal.TryGetValue(planBuildEvent.BuildingType, out var goal);
+		var agent = _agentsCollectionNode.GetChild(0);
+		_planner.Plan(agent as Agent3D, goal);
+		_planningStarted = false;
+	}
+
 	public override void _Process(double delta)
 	{
-		if (Input.IsActionJustPressed("ui_up"))
-			_start = true;
-
-		if (_start)
-		{
-			var agent = _agentsCollectionNode.GetChild(0);
-			var goal = new GoapActionPreconditionComponent() { Preconditions = [
-				new("StoneInWorld", 5),
-				new ("LogInWorld", 4)
-			] };
-			_planner.Plan(agent as Agent3D, goal);
-			_start = false;
-		}
-		
 		_planner.Execute(delta);
 	}
 

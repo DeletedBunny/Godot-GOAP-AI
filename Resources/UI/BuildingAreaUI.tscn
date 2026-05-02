@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bt5hucdl0pwoi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_njwo2"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.24000001, 0.47333336, 0.8, 0.5019608)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ye2ia"]
+material = SubResource("StandardMaterial3D_njwo2")
+
+[node name="BuildingAreaUi" type="Node3D" unique_id=1132994019]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1179034313]
+mesh = SubResource("BoxMesh_ye2ia")

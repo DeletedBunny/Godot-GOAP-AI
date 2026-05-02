@@ -4,7 +4,7 @@ namespace GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 public interface IInteractableEntity
 {
-    bool IsEntityDestroyed { get; }
+    bool IsEntityInteractionFinished { get; }
     EntityType RequiredEntityTypeForInteraction { get; }
     void Interact(double deltaTime);
 }

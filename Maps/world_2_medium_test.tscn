@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://jcr8j0gxp4qk" path="res://Resources/gltf/mountain_B_grass.gltf" id="11_oqcn2"]
 [ext_resource type="PackedScene" uid="uid://cj64i8ms4h7lp" path="res://Resources/Units/agent.tscn" id="14_2wn3d"]
 [ext_resource type="PackedScene" uid="uid://8gc3fd3e1a02" path="res://Resources/Nature/grass.tscn" id="14_oqcn2"]
+[ext_resource type="PackedScene" uid="uid://us1i07h2pl5s" path="res://Resources/UI/Main_UI.tscn" id="16_7ufy5"]
 
 [sub_resource type="Resource" id="Resource_1clwu"]
 script = ExtResource("5_sron4")
@@ -33,6 +34,8 @@ metadata/_custom_type_script = "uid://brsx2wo4fqjd6"
 
 [node name="World_2_Medium_Test" type="Node" unique_id=1450018758]
 script = ExtResource("1_75n0f")
+
+[node name="Control" parent="." unique_id=613795204 instance=ExtResource("16_7ufy5")]
 
 [node name="GridMap" parent="." unique_id=107610673 instance=ExtResource("2_0dlrs")]
 data = {
@@ -241,10 +244,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.414109, 0.9537778, 12.34664
 [node name="mountain_C" parent="GoapWorldResourceCollection/Mountains" unique_id=750290728 instance=ExtResource("9_utspi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.895251, 0.8477526, 10.935121)
 
-[node name="mountain_A_grass2" parent="GoapWorldResourceCollection/Mountains" unique_id=1911837777 instance=ExtResource("10_utspi")]
+[node name="mountain_A_grass2" parent="GoapWorldResourceCollection/Mountains" unique_id=374711980 instance=ExtResource("10_utspi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.623026, 0.9695072, -11.9751835)
 
-[node name="mountain_B_grass2" parent="GoapWorldResourceCollection/Mountains" unique_id=395529683 instance=ExtResource("11_oqcn2")]
+[node name="mountain_B_grass2" parent="GoapWorldResourceCollection/Mountains" unique_id=213387567 instance=ExtResource("11_oqcn2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.996424, 0.936759, -6.627505)
 
 [node name="Bushes" type="Node" parent="GoapWorldResourceCollection" unique_id=942780229]

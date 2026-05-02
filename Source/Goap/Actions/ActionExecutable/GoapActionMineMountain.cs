@@ -9,19 +9,21 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.MineMountain)]
 public class GoapActionMineMountain : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
         var isMountainInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
 
         if (!isMountainInWorld)
             return;
         
-        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);
+        InitializeTargetProviderInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);
         IsInitialized = true;
     }
 
     public override void ExecuteAction(double deltaTime)
     {
+        base.ExecuteAction(deltaTime);
+        
         if (!IsNearPosition())
         {
             return;
@@ -35,7 +37,7 @@ public class GoapActionMineMountain : GoapActionBase
     {
         if (Target is IInteractableEntity target)
         {
-            return target.IsEntityDestroyed;
+            return target.IsEntityInteractionFinished;
         }
 
         throw new Exception("Target is not an interactable entity, breaking...");

@@ -20,6 +20,8 @@ public static class ResourceToPathLookup
         { EntityType.Hammer, "res://Resources/Units/hammer.tscn" },
         { EntityType.Log, "res://Resources/Buildings/resource_lumber_single.tscn" },
         { EntityType.Stone, "res://Resources/Buildings/resource_stone_single.tscn" },
+        { EntityType.HomeA, "res://Resources/Buildings/building_home_A_yellow.tscn" },
+        { EntityType.BuildingZone, "res://Resources/Buildings/building_home_A_yellow.tscn" },
         { EntityType.Unknown, "res://Resources/Buildings/sack.tscn" }
     };
 }
@@ -33,6 +35,8 @@ public enum EntityType
     Tree,
     Mountain,
     Bush,
+    HomeA,
+    BuildingZone,
     Unknown,
     None
 }

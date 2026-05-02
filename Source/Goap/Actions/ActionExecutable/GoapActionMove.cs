@@ -8,23 +8,27 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.MoveTo)]
 public class GoapActionMove : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
         if (moveToType == EntityType.None) 
             return;
         
-        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), moveToType, false);
+        InitializeTargetProviderInternal(worldStateModel, previousAction?.GetTarget(), moveToType, false);
 
         if (Target == null) 
             return;
         
         DataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
         IsInitialized = true;
-        //ActionEffectsComponent.Effects.Add(new KeyValuePair<string, int>(GoapWorldStateConstants.NearEntityKey + moveToType, 1));
     }
 
     public override void ExecuteAction(double deltaTime)
     {
+        base.ExecuteAction(deltaTime);
+        
+        if (DataComponent.TimeCostInSeconds == 0) 
+            DataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
+        
         if (IsNearPosition()) 
             return;
         

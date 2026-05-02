@@ -1,6 +1,6 @@
 ﻿using Godot;
+using GodotGOAPAI.Source.Goap.Actions.ActionComponents;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
-using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -14,8 +14,9 @@ public interface IGoapAction
     GoapActionDataComponent DataComponent { get; }
     GoapActionPreconditionComponent PreconditionsComponent { get; }
     GoapActionEffectComponent EffectsComponent { get; }
+    GoapActionTargetProvider TargetProvider { get; }
     void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions, GoapActionEffectComponent actionEffects);
-    void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
+    void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
     Node3D GetTarget();
     void ExecuteAction(double deltaTime);
     bool IsCompletedConditionMet();

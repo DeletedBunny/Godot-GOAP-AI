@@ -44,6 +44,22 @@ public partial class Agent3D : Node3D
         
         GD.Print("Tried to remove item from hand that is not in hand");
     }
+
+    public void TransferItemToTarget(Node3D target)
+    {
+        var item = _handPositionNode.GetChildren().FirstOrDefault();
+        if (_agentHandsInventory.IsAnyItemInInventory
+            && target is IDeliverResourceZone deliverResourceZone
+            && item is IEntity entity
+            && item is Node3D deliverableItem)
+        {
+            deliverResourceZone.DeliverResource(deliverableItem);
+            _agentHandsInventory.RemoveItem(entity.EntityType);
+            return;
+        }
+        
+        GD.Print("Tried to transfer item to target that is not in hand");
+    }
     
     public bool IsEntityTypeInHand(EntityType entityType) => _agentHandsInventory.HasItem(entityType);
     public bool IsHoldingAnyItemInHand() => _agentHandsInventory.IsAnyItemInInventory;
