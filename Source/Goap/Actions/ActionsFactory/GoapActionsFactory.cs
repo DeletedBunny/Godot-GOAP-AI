@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using GodotGOAPAI.Source.Goap.Actions;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.Goap.Actions.ActionComponents;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
-using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 using GodotGOAPAI.Source.Goap.Actions.ActionsFactory;
 using GodotGOAPAI.Source.Goap.Agent;
@@ -61,8 +61,8 @@ public class GoapActionsFactory : IGoapActionsFactory
         GoapActionBuilder.Create(GoapActionType.DropItem)
                          .AddData(new()
                          {
-                             TimeCostMultiplier = 0.1f,
-                             TimeCostInSeconds = 0.1f
+                             TimeCostMultiplier = 20f,
+                             TimeCostInSeconds = 1f
                          })
                          .AddPrecondition("HasEmptyHands", 0)
                          .AddEffect("HasEmptyHands", 1)
@@ -97,6 +97,78 @@ public class GoapActionsFactory : IGoapActionsFactory
                          .AddEffect("HasEmptyHands", -1)
                          .AddEffect("NearEntity", -1)
                          .Build<GoapActionPickUpHammer>(this);
+        GoapActionBuilder.Create(GoapActionType.DeliverLogToBuildZone)
+                         .AddData(new()
+                         {
+                             TimeCostMultiplier = 0.1f,
+                             TimeCostInSeconds = 0.1f
+                         })
+                         .AddRequiredLocationType(EntityType.BuildingZone)
+                         .AddPrecondition("HasLog", 1)
+                         .AddPrecondition("NearEntity", 1)
+                         .AddEffect("HasLog", -1)
+                         .AddEffect("LogInBuildZone", 1)
+                         .AddEffect("HasEmptyHands", 1)
+                         .AddEffect("NearEntity", -1)
+                         .Build<GoapActionDeliverResourceToBuildingZone>(this);
+        GoapActionBuilder.Create(GoapActionType.DeliverStoneToBuildZone)
+                         .AddData(new()
+                         {
+                             TimeCostMultiplier = 0.1f,
+                             TimeCostInSeconds = 0.1f
+                         })
+                         .AddRequiredLocationType(EntityType.BuildingZone)
+                         .AddPrecondition("HasStone", 1)
+                         .AddPrecondition("NearEntity", 1)
+                         .AddEffect("HasStone", -1)
+                         .AddEffect("StoneInBuildZone", 1)
+                         .AddEffect("HasEmptyHands", 1)
+                         .AddEffect("NearEntity", -1)
+                         .Build<GoapActionDeliverResourceToBuildingZone>(this);
+        GoapActionBuilder.Create(GoapActionType.PickupLog)
+                         .AddData(new()
+                         {
+                             TimeCostMultiplier = 0.8f,
+                             TimeCostInSeconds = 2
+                         })
+                         .AddRequiredLocationType(EntityType.Log)
+                         .AddPrecondition("HasEmptyHands", 1)
+                         .AddPrecondition("LogInWorld", 1)
+                         .AddPrecondition("NearEntity", 1)
+                         .AddEffect("HasLog", 1)
+                         .AddEffect("LogInWorld", -1)
+                         .AddEffect("HasEmptyHands", -1)
+                         .AddEffect("NearEntity", -1)
+                         .Build<GoapActionPickupLog>(this);
+        GoapActionBuilder.Create(GoapActionType.PickupStone)
+                         .AddData(new()
+                         {
+                             TimeCostMultiplier = 0.8f,
+                             TimeCostInSeconds = 2
+                         })
+                         .AddRequiredLocationType(EntityType.Stone)
+                         .AddPrecondition("HasEmptyHands", 1)
+                         .AddPrecondition("StoneInWorld", 1)
+                         .AddPrecondition("NearEntity", 1)
+                         .AddEffect("HasStone", 1)
+                         .AddEffect("LogInWorld", -1)
+                         .AddEffect("HasEmptyHands", -1)
+                         .AddEffect("NearEntity", -1)
+                         .Build<GoapActionPickupStone>(this);
+        GoapActionBuilder.Create(GoapActionType.BuildHomeA)
+                         .AddData(new()
+                         {
+                             TimeCostMultiplier = 1f,
+                             TimeCostInSeconds = 10
+                         })
+                         .AddRequiredLocationType(EntityType.BuildingZone)
+                         .AddPrecondition("LogInBuildZone", 3)
+                         .AddPrecondition("StoneInBuildZone", 2)
+                         .AddPrecondition("HasHammer", 1)
+                         .AddPrecondition("NearEntity", 1)
+                         .AddEffect("HomeAInWorld", 1)
+                         .AddEffect("NearEntity", -1)
+                         .Build<GoapActionBuildZone>(this);
     }
 
     public void AddAction(GoapActionType actionType, GoapActionRegistration actionRegistration)
@@ -127,10 +199,10 @@ public class GoapActionsFactory : IGoapActionsFactory
 
     public List<IGoapAction> GetMatchingActionsByEffect(string actionResultKey, EntityType requiredEntity, Agent3D agent)
     {
-        var actionMap = _goapActions.Where(item => 
-                item.Value.ActionEffects.ContainsEffect(actionResultKey) && item.Value.ActionEffects.Effects.Find(kvp => kvp.Key.Equals(actionResultKey)).Value >= 0)
-            .Select(item => GetAction(item.Key, agent))
-            .ToList();
+        var actionMap = _goapActions
+                        .Where(a => FilterActionWithSpecialCases(a, actionResultKey))
+                        .Select(item => GetAction(item.Key, agent))
+                        .ToList();
         
         var actionDropItem = actionMap.FirstOrDefault(action => action.Type == GoapActionType.DropItem);
         if (actionDropItem != null)
@@ -145,18 +217,6 @@ public class GoapActionsFactory : IGoapActionsFactory
         return actionMap;
     }
 
-    public IGoapAction GetMoveToAction(EntityType typeToMoveTo, Agent3D agent)
-    {
-        _goapActions.TryGetValue(GoapActionType.MoveTo, out var actionRegistration);
-        
-        if (actionRegistration == null)
-            throw new Exception("MoveTo action not found");
-        
-        var actionInstance = actionRegistration.CreateAction(agent);
-        actionInstance.EffectsComponent.Effects.Add(new(GoapWorldStateConstants.NearEntityKey + typeToMoveTo, 1));
-        return actionInstance;
-    }
-
     public IGoapAction CreateAction<TAction>(
         Agent3D agent, 
         GoapActionDataComponent actionData, 
@@ -167,5 +227,18 @@ public class GoapActionsFactory : IGoapActionsFactory
         var action = new TAction();
         action.Initialize(agent, actionData, actionPreconditions, actionEffects);
         return action;
+    }
+
+    private bool FilterActionWithSpecialCases(KeyValuePair<GoapActionType, GoapActionRegistration> action, string actionResultKey)
+    {
+        var isActionContainsEffect = action.Value.ActionEffects.ContainsEffect(actionResultKey);
+        var isEffectValuePositive = action.Value.ActionEffects.Effects.Find(kvp => kvp.Key.Equals(actionResultKey)).Value >= 0;
+        var isActionSpecialCase = false;
+        if (actionResultKey.Equals(GoapWorldStateConstants.HasModifierPrefix + GoapWorldStateConstants.AgentEmptyHandsKey))
+        {
+            isActionSpecialCase = action.Key is GoapActionType.DeliverLogToBuildZone or GoapActionType.DeliverStoneToBuildZone;
+        }
+        
+        return isActionContainsEffect && isEffectValuePositive && !isActionSpecialCase;
     }
 }

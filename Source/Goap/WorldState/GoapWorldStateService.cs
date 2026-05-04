@@ -82,6 +82,23 @@ public partial class GoapWorldStateService : Node
 		}
 	}
 
+	public Node3D GetClosestNodeFromWorldStateAndRemove(EntityType entityType, Vector3 position)
+	{
+		var clone = _currentWorldStateModelModel.Clone();
+		lock (_worldStateLock)
+		{
+			return clone.GetClosestAndRemove(entityType, position);
+		}
+	}
+	
+	public Node3D GetClosestNodeFromWorldState(EntityType entityType, Vector3 position)
+	{
+		lock (_worldStateLock)
+		{
+			return _currentWorldStateModelModel.GetClosest(entityType, position);
+		}
+	}
+
 	public void EntityPickedUp(Node3D entity)
 	{
 		if (entity is IEntity entityInterface)
@@ -116,7 +133,7 @@ public partial class GoapWorldStateService : Node
 	{
 		lock (_worldStateLock)
 		{
-			_currentWorldStateModelModel.RemoveItems(entityType, [entityNode]);
+			//_currentWorldStateModelModel.RemoveItems(entityType, [entityNode]);
 		}
 	}
 	

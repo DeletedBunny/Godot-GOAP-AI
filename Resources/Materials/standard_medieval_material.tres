@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cdgh2ytq3scmk"]
+
+[ext_resource type="Texture2D" uid="uid://dhsg0cmycahkm" path="res://Resources/Textures/hexagons_medieval.png" id="1_r16hw"]
+
+[resource]
+albedo_texture = ExtResource("1_r16hw")
+roughness = 0.6
+distance_fade_mode = 3
+stencil_mode = 3
+stencil_flags = 2
+stencil_compare = 2

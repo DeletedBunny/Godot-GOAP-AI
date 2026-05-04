@@ -100,7 +100,7 @@ public class GoapWorldStateModel
 
     public EntityType GetEntityStringFromPartialKey(string key, string[] ignoreKeys)
     {
-        var entityString = _virtualStates.FirstOrDefault(kvp => !ignoreKeys.Contains(kvp.Key) && kvp.Key.Contains(key)).Key.Replace(key, "");
+        var entityString = _virtualStates.FirstOrDefault(kvp => !ignoreKeys.Contains(kvp.Key) && kvp.Key.Contains(key) && kvp.Value > 0).Key.Replace(key, "");
         return Enum.TryParse<EntityType>(entityString, out var entityType) 
                    ? entityType 
                    : EntityType.None;
@@ -129,9 +129,12 @@ public class GoapWorldStateModel
     public Node3D GetClosestAndRemove(EntityType entityType, Vector3 fromPosition)
     {
         var closest = GetClosest(entityType, fromPosition);
-        if(closest != null)
+        if (closest != null)
+        {
             _physicalResources[entityType].Remove(closest);
-        
+            _physicalResourcesSimulatedChanges[entityType] = _physicalResourcesSimulatedChanges.GetValueOrDefault(entityType, 0) + 1;
+        }
+
         return closest;
     }
 

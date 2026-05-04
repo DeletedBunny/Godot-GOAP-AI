@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dlly4mc8mp0j8"]
+
+[ext_resource type="Script" uid="uid://bpwj3p0duc8in" path="res://Source/UI/BuildManager.cs" id="1_7dpjd"]
+
+[node name="BuildManager" type="Node" unique_id=1953252576]
+script = ExtResource("1_7dpjd")

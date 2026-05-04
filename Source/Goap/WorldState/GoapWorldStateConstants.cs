@@ -6,4 +6,5 @@ public static class GoapWorldStateConstants
     public const string AgentEmptyHandsKey = "EmptyHands";
     public const string NearEntityKey = "Near";
     public const string InWorldModifierPostfix = "InWorld";
+    public const string InBuildingZoneModifierPostfix = "InBuildZone";
 }

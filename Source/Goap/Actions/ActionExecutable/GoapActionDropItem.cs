@@ -8,13 +8,15 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.DropItem)]
 public class GoapActionDropItem : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
         IsInitialized = true;
     }
 
     public override void ExecuteAction(double deltaTime)
     {
+        base.ExecuteAction(deltaTime);
+        
         if (!Agent.IsHoldingAnyItemInHand())
         {
             return;

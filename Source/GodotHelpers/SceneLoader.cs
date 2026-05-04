@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using GodotGOAPAI.Source.UI;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.GodotHelpers;
@@ -26,10 +27,15 @@ public static class SceneLoader
             var instance = sceneToInstance.Instantiate<Node3D>();
             nodeToInstanceOn.AddChild(instance);
 
-            var angleForPoint = (2f * Mathf.Pi * i) / amountToInstance;
-            var x = radius * Mathf.Cos(angleForPoint) + globalPositionToInstanceAt.X;
-            var z = radius * Mathf.Sin(angleForPoint) + globalPositionToInstanceAt.Z;
-            
+            var x = globalPositionToInstanceAt.X;
+            var z = globalPositionToInstanceAt.Z;
+            if (amountToInstance > 1)
+            {
+                var angleForPoint = (2f * Mathf.Pi * i) / amountToInstance;
+                x = radius * Mathf.Cos(angleForPoint) + globalPositionToInstanceAt.X;
+                z = radius * Mathf.Sin(angleForPoint) + globalPositionToInstanceAt.Z;
+            }
+
             instance.GlobalPosition = new Vector3(x, 1, z);
             var rotationY = GD.Randf() * 360;
             instance.RotationDegrees = new Vector3(0, rotationY, 0);

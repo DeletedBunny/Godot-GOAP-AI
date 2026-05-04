@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using GodotGOAPAI.Source.Goap.Actions;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.Goap.Actions.ActionComponents;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
-using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;

@@ -19,6 +19,8 @@ public class GoapPlanner
 {
     private readonly IGoapActionsFactory _goapActionsFactory = new GoapActionsFactory();
     private readonly GoapPlannerExecutionQueue _goapPlannerExecutionQueue = new();
+    
+    public bool IsExecuting => !_goapPlannerExecutionQueue.IsQueueEmpty;
 
     public GoapPlanner()
     {
@@ -30,7 +32,16 @@ public class GoapPlanner
         var agentInternalState = agent.GetAgentWorldState();
         var simulationStateModel = GoapWorldStateService.Instance.GetWorldStateForSimulation(agentInternalState);
 
+        List<KeyValuePair<string, int>> modifiedPreconditions = new();
+        foreach (var item in neededItemsToHave.Preconditions)
+        {
+            var modifiedValue = simulationStateModel.GetState(item.Key) + item.Value;
+            modifiedPreconditions.Add(new KeyValuePair<string, int>(item.Key, modifiedValue));
+        }
+        neededItemsToHave.Preconditions = modifiedPreconditions;
+
         var planningTree = BuildTree(_goapActionsFactory.GetGoal(neededItemsToHave), simulationStateModel, agent);
+        GD.Print(planningTree);
         BuildExecutionQueue(planningTree.Root);
     }
 
@@ -53,12 +64,14 @@ public class GoapPlanner
         IGoapAction rollingContextAction = previousAction;
         
         var unmetPreconditions = currentLeaf.ActionInstance.PreconditionsComponent.Preconditions
-                                            .Where(kvp => FilterPreconditions(kvp, simulationStateModel))
-                                            .OrderBy(x => x.Key.StartsWith(GoapWorldStateConstants.HasModifierPrefix) ? 0 : 1)
+                                            .OrderBy(PreconditionOrdering)
                                             .ToList();
 
         foreach (var precondition in unmetPreconditions)
         {
+            if (!FilterPreconditions(precondition, simulationStateModel))
+                continue;
+            
             var matchingActions = GetMatchingActionsWithAmount(precondition, simulationStateModel, agent);
 
             var matchingActionCounter = -1;
@@ -70,7 +83,7 @@ public class GoapPlanner
                 {
                     var actionInstance = action.ActionInstance;
                     if (action.RepeatCount > 1 && i > 0)
-                        actionInstance = _goapActionsFactory.GetAction(action.ActionInstance.Type, agent);
+                        actionInstance = GetMatchingActionsWithAmount(precondition, simulationStateModel, agent).First().ActionInstance;
                     var newLeaf = CreateLeaf(actionInstance);
                     newLeaf.PathId = currentLeaf.PathId > matchingActionCounter ? currentLeaf.PathId : matchingActionCounter;
                     currentLeaf.AddChild(precondition.Key, newLeaf);
@@ -85,7 +98,7 @@ public class GoapPlanner
             currentLeaf.IsResolvable = currentLeaf.CheckIsResolvable(simulationStateModel);
             var requiredEntity = currentLeaf.Parent?.ActionInstance.PreconditionsComponent.RequiredEntity ?? EntityType.None;
             var entityType = currentLeaf.ActionInstance.Type == GoapActionType.MoveTo ? requiredEntity : EntityType.None;
-            currentLeaf.ActionInstance.InitializeTarget(simulationStateModel, rollingContextAction, entityType);
+            currentLeaf.ActionInstance.InitializeTargetProvider(simulationStateModel, rollingContextAction, entityType);
             rollingContextAction = currentLeaf.ActionInstance;
         }
                 
@@ -97,6 +110,17 @@ public class GoapPlanner
         currentLeaf.WorldState = simulationStateModel;
         currentLeaf.CachedTotalCost = currentLeaf.CalculateTotalCost();
         return rollingContextAction;
+    }
+
+    private int PreconditionOrdering(KeyValuePair<string, int> precondition)
+    {
+        if (precondition.Key.EndsWith(GoapWorldStateConstants.InBuildingZoneModifierPostfix))
+            return 0;
+        if (precondition.Key.Equals(GoapWorldStateConstants.HasModifierPrefix + GoapWorldStateConstants.AgentEmptyHandsKey))
+            return 3;
+        if (precondition.Key.StartsWith(GoapWorldStateConstants.HasModifierPrefix))
+            return 1;
+        return 2;
     }
 
     private bool FilterPreconditions(KeyValuePair<string, int> precondition, GoapWorldStateModel simulationStateModel)

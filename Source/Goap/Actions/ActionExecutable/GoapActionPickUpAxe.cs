@@ -1,4 +1,5 @@
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.Goap.WorldState;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
@@ -8,19 +9,21 @@ namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 [GoapAction(GoapActionType.PickUpAxe)]
 public class GoapActionPickUpAxe : GoapActionBase
 {
-    public override void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
+    public override void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType)
     {
-        var isAxeInWorld = worldStateModel.GetPhysicalState(PreconditionsComponent.RequiredEntity) > 0;
+        var isAxeInWorld = worldStateModel.GetState(PreconditionsComponent.RequiredEntity + GoapWorldStateConstants.InWorldModifierPostfix) > 0;
 
         if (!isAxeInWorld)
             return;
         
-        InitializeTargetInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);
+        InitializeTargetProviderInternal(worldStateModel, previousAction?.GetTarget(), PreconditionsComponent.RequiredEntity, true);
         IsInitialized = true;
     }
 
     public override void ExecuteAction(double deltaTime)
     {
+        base.ExecuteAction(deltaTime);
+        
         if (!IsNearPosition())
         {
             return;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Godot;
+using GodotGOAPAI.Source.Goap.Actions.ActionComponents;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
-using GodotGOAPAI.Source.Goap.Actions.ActionData;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -25,6 +25,7 @@ public abstract class GoapActionBase : IGoapAction
     public GoapActionDataComponent DataComponent { get; private set; }
     public GoapActionPreconditionComponent PreconditionsComponent { get; private set; }
     public GoapActionEffectComponent EffectsComponent { get; private set; }
+    public GoapActionTargetProvider TargetProvider { get; private set; } = new();
     protected Node3D Target { get; set; }
     protected Agent3D Agent { get; private set; }
 
@@ -34,26 +35,44 @@ public abstract class GoapActionBase : IGoapAction
         GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
     {
-        DataComponent = actionData;
-        PreconditionsComponent = actionPreconditions;
-        EffectsComponent = actionEffects;
+        DataComponent = actionData.Clone();
+        PreconditionsComponent = actionPreconditions.Clone();
+        EffectsComponent = actionEffects.Clone();
         Agent = agent;
     }
 
-    public abstract void InitializeTarget(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
-    public abstract void ExecuteAction(double deltaTime);
+    public abstract void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
+
+    public virtual void ExecuteAction(double deltaTime)
+    {
+        if (Target == null)
+        {
+            if (TargetProvider.FromPosition.IsEqualApprox(Vector3.Zero))
+                TargetProvider.FromPosition = Agent.GlobalPosition;
+
+            if (PreconditionsComponent.RequiredEntity != EntityType.None)
+                TargetProvider.TargetType = PreconditionsComponent.RequiredEntity;
+            
+            Target = TargetProvider.GetClosestTarget();
+        }
+    }
+    
     public abstract bool IsCompletedConditionMet();
 
-    protected void InitializeTargetInternal(
+    protected void InitializeTargetProviderInternal(
         GoapWorldStateModel worldStateModel, 
         Node3D previousTarget, 
         EntityType entityType,
         bool shouldConsumeResource)
     {
         var startPosition = previousTarget?.GlobalPosition ?? Agent.GlobalPosition;
-            Target = shouldConsumeResource 
-                          ? worldStateModel.GetClosestAndRemove(entityType, startPosition) 
-                          : worldStateModel.GetClosest(entityType, startPosition);
+        TargetProvider.TargetType = entityType;
+        TargetProvider.ShouldConsumeTarget = shouldConsumeResource;
+        if (previousTarget != null)
+            TargetProvider.FromPosition = previousTarget.GlobalPosition;
+        Target = shouldConsumeResource 
+                     ? worldStateModel.GetClosestAndRemove(entityType, startPosition) 
+                     : worldStateModel.GetClosest(entityType, startPosition);
     }
     
     public Node3D GetTarget()

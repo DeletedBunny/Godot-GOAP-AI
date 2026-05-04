@@ -1,5 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://dinchk8o84hav"]
+[gd_scene format=3 uid="uid://dinchk8o84hav"]
 
 [ext_resource type="PackedScene" uid="uid://cvck4dkvobdgt" path="res://Resources/gltf/building_home_A_yellow.gltf" id="1_jeoe3"]
+[ext_resource type="Script" uid="uid://dlyh1wqamjk3s" path="res://Source/WorldEntityItems/BuildingHomeAEntity.cs" id="2_sg53q"]
 
-[node name="building_home_A_yellow" instance=ExtResource("1_jeoe3")]
+[node name="building_home_A_yellow" unique_id=1152788705 node_paths=PackedStringArray("_mesh", "_resourceZone") instance=ExtResource("1_jeoe3")]
+script = ExtResource("2_sg53q")
+_mesh = NodePath("building_home_A_yellow")
+_resourceZone = NodePath("Node3D")
+
+[node name="Node3D" type="Node3D" parent="." index="1" unique_id=1584318253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0, 0.3)
