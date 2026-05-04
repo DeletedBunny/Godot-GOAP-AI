@@ -26,16 +26,16 @@ public class GoapActionMove : GoapActionBase
     {
         base.ExecuteAction(deltaTime);
         
+        if (Target == null)
+        {
+            throw new Exception("Target is null and action is not completed yet, breaking...");
+        }
+        
         if (DataComponent.TimeCostInSeconds == 0) 
             DataComponent.TimeCostInSeconds = Agent.GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
         
         if (IsNearPosition()) 
             return;
-        
-        if (Target == null)
-        {
-            throw new Exception("Target is null and action is not completed yet, breaking...");
-        }
         
         Agent.MoveTo(Target, deltaTime);
     }

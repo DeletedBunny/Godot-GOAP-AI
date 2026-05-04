@@ -18,9 +18,6 @@ namespace GodotGOAPAI.Source.Goap.Planner;
 public class GoapPlanner
 {
     private readonly IGoapActionsFactory _goapActionsFactory = new GoapActionsFactory();
-    private readonly GoapPlannerExecutionQueue _goapPlannerExecutionQueue = new();
-    
-    public bool IsExecuting => !_goapPlannerExecutionQueue.IsQueueEmpty;
 
     public GoapPlanner()
     {
@@ -42,7 +39,8 @@ public class GoapPlanner
 
         var planningTree = BuildTree(_goapActionsFactory.GetGoal(neededItemsToHave), simulationStateModel, agent);
         GD.Print(planningTree);
-        BuildExecutionQueue(planningTree.Root);
+        BuildExecutionQueue(planningTree.Root, agent);
+        agent.ExecuteActionQueue();
     }
 
     private GoapPlanningTree BuildTree(IGoapAction goal, GoapWorldStateModel simulationStateModel, Agent3D agent)
@@ -129,7 +127,7 @@ public class GoapPlanner
         return stateValue < precondition.Value;
     }
 
-    private void BuildExecutionQueue(GoapPlanningLeaf leaf)
+    private void BuildExecutionQueue(GoapPlanningLeaf leaf, Agent3D agent)
     {
         var allResolvableChildren = leaf.Children.Values
                                         .SelectMany(x => x)
@@ -154,7 +152,7 @@ public class GoapPlanner
 
                 foreach (var child in children)
                 {
-                    BuildExecutionQueue(child);
+                    BuildExecutionQueue(child, agent);
                 }
             }
         }
@@ -165,7 +163,7 @@ public class GoapPlanner
         if (leaf.ActionInstance.GetTarget() is IEntity entity)
             GoapWorldStateService.Instance.ReserveEntity(entity.EntityType, leaf.ActionInstance.GetTarget());
         
-        _goapPlannerExecutionQueue.AddToQueue(leaf.ActionInstance);
+        agent.AddActionToExecutionQueue(leaf.ActionInstance);
     }
 
     private GoapPlanningLeaf CreateLeaf(IGoapAction action)
@@ -192,21 +190,5 @@ public class GoapPlanner
         }).ToList();
 
         return goapPlanningActions;
-    }
-
-    public void Execute(double deltaTime)
-    {
-        try
-        {
-            if (_goapPlannerExecutionQueue.IsQueueEmpty)
-                return;
-
-            _goapPlannerExecutionQueue.ExecuteQueue(deltaTime);
-        }
-        catch (Exception ex)
-        {
-            _goapPlannerExecutionQueue.ClearQueue();
-            GD.PrintErr(nameof(GoapPlanner) + " encountered an error executing action: " + ex);
-        }
     }
 }

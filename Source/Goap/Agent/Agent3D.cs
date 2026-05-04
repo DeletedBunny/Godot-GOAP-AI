@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.Goap.WorldState;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
@@ -12,9 +14,32 @@ public partial class Agent3D : Node3D
 {
     private const double MoveSpeed = 5;
     private readonly AgentInventory _agentHandsInventory = new AgentInventory(1);
+    private readonly GoapPlannerExecutionQueue _planExecutionQueue = new();
     
     [Export]
     private Node3D _handPositionNode;
+
+    private bool _isReadyToExecute;
+
+    public bool IsReadyToPlan => _planExecutionQueue.IsQueueEmpty && !_isReadyToExecute;
+
+    public override void _Process(double delta)
+    {
+        if (!_isReadyToExecute)
+            return;
+        
+        if (_planExecutionQueue.IsQueueEmpty)
+            _isReadyToExecute = false;
+
+        try
+        {
+            _planExecutionQueue.ExecuteQueue(delta);
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr(ex, $"Agent had an error executing planned action queue. Action was: {ex.Data[_planExecutionQueue.ExceptionActionKey]}");
+        }
+    }
 
     public void AddItemToHand(IPickupEntity item)
     {
@@ -100,4 +125,11 @@ public partial class Agent3D : Node3D
             inventoryState.Add((GoapWorldStateConstants.HasModifierPrefix + GoapWorldStateConstants.AgentEmptyHandsKey, 1));
         return inventoryState;
     }
+
+    public void AddActionToExecutionQueue(IGoapAction action)
+    {
+        _planExecutionQueue.AddToQueue(action);
+    }
+
+    public void ExecuteActionQueue() => _isReadyToExecute = true;
 }

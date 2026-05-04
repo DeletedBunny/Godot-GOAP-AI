@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
@@ -6,7 +7,7 @@ namespace GodotGOAPAI.Source.Goap;
 
 public class GoapEntityToGoalFactory
 {
-    public static Dictionary<EntityType, GoapActionPreconditionComponent> EntityToGoal = new()
+    private static Dictionary<EntityType, GoapActionPreconditionComponent> _entityToGoal = new()
     {
         { EntityType.HomeA, new GoapActionPreconditionComponent()
         {
@@ -16,4 +17,12 @@ public class GoapEntityToGoalFactory
             }
         } }
     };
+
+    public static void GetGoal(EntityType entityType, out GoapActionPreconditionComponent goal)
+    {
+        goal = new GoapActionPreconditionComponent
+        {
+            Preconditions = _entityToGoal[entityType].Preconditions.ToList()
+        };
+    }
 }
