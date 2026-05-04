@@ -8,25 +8,27 @@ namespace GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
 
 public class GoapActionRegistration
 {
-    private Func<Agent3D, GoapActionDataComponent, GoapActionPreconditionComponent, GoapActionEffectComponent, IGoapAction> _actionFunc;
-    public readonly GoapActionPreconditionComponent ActionPreconditions;
-    public readonly GoapActionEffectComponent ActionEffects;
-    public readonly GoapActionDataComponent ActionData;
+    private readonly Func<IAgentPlanner, GoapActionDataComponent, GoapActionPreconditionComponent, GoapActionEffectComponent, IGoapAction> _actionFunc;
+    private readonly GoapActionPreconditionComponent _actionPreconditions;
+    private readonly GoapActionEffectComponent _actionEffects;
+    private readonly GoapActionDataComponent _actionData;
+    
+    public IGoapActionEffectComponent ActionEffects => _actionEffects;
 
     public GoapActionRegistration(
-        Func<Agent3D, GoapActionDataComponent, GoapActionPreconditionComponent, GoapActionEffectComponent, IGoapAction> actionFunc, 
+        Func<IAgentPlanner, GoapActionDataComponent, GoapActionPreconditionComponent, GoapActionEffectComponent, IGoapAction> actionFunc, 
         GoapActionDataComponent actionData, 
         GoapActionPreconditionComponent actionPreconditions, 
         GoapActionEffectComponent actionEffects)
     {
         _actionFunc = actionFunc;
-        ActionPreconditions = actionPreconditions;
-        ActionEffects = actionEffects;
-        ActionData = actionData;
+        _actionPreconditions = actionPreconditions;
+        _actionEffects = actionEffects;
+        _actionData = actionData;
     }
 
-    public IGoapAction CreateAction(Agent3D agent)
+    public IGoapAction CreateAction(IAgentPlanner agent)
     {
-        return _actionFunc.Invoke(agent, ActionData, ActionPreconditions, ActionEffects);
+        return _actionFunc.Invoke(agent, _actionData, _actionPreconditions, _actionEffects);
     }
 }

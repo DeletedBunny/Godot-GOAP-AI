@@ -1,7 +1,6 @@
 using System;
 using Godot;
 using GodotGOAPAI.Source.Goap.WorldState;
-using GodotGOAPAI.Source.WorldEntityItems.Constants;
 using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.WorldEntityItems.Abstractions;

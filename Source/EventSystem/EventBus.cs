@@ -7,7 +7,7 @@ namespace GodotGOAPAI.Source.EventSystem;
 
 public partial class EventBus : Node, IEventBus
 {
-	public static EventBus Instance { get; private set; }
+	public static IEventBus Instance { get; private set; }
 	
 	private readonly ConcurrentDictionary<string, ImmutableList<Action<IEvent>>> _handlersDictionary = new();
 

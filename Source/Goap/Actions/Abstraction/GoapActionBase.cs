@@ -27,11 +27,10 @@ public abstract class GoapActionBase : IGoapAction
     public GoapActionEffectComponent EffectsComponent { get; private set; }
     public GoapActionTargetProvider TargetProvider { get; private set; } = new();
     protected Node3D Target { get; set; }
-    protected Agent3D Agent { get; private set; }
+    protected IAgentActionable Agent { get; private set; }
 
-    public void Initialize(
-        Agent3D agent, 
-        GoapActionDataComponent actionData, 
+    public void Initialize(IAgentActionable agent,
+        GoapActionDataComponent actionData,
         GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
     {

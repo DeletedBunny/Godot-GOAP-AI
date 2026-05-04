@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
+using GodotGOAPAI.Source.GOAP.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.Goap.WorldState;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -10,10 +11,10 @@ using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.Agent;
 
-public partial class Agent3D : Node3D
+public partial class Agent3D : Node3D, IAgentPlanner, IAgentActionable
 {
     private const double MoveSpeed = 5;
-    private readonly AgentInventory _agentHandsInventory = new AgentInventory(1);
+    private readonly AgentInventory _agentHandsInventory = new(1);
     private readonly GoapPlannerExecutionQueue _planExecutionQueue = new();
     
     [Export]
@@ -37,10 +38,12 @@ public partial class Agent3D : Node3D
         }
         catch (Exception ex)
         {
-            GD.PrintErr(ex, $"Agent had an error executing planned action queue. Action was: {ex.Data[_planExecutionQueue.ExceptionActionKey]}");
+            GD.PrintErr(ex, $"Agent had an error executing planned action queue. Action was: {ex.Data[GoapPlannerExecutionQueue.ExceptionActionKey]}");
         }
     }
 
+    #region Agent Action Interface
+    
     public void AddItemToHand(IPickupEntity item)
     {
         if (_agentHandsInventory.IsInventoryFull)
@@ -89,11 +92,6 @@ public partial class Agent3D : Node3D
     public bool IsEntityTypeInHand(EntityType entityType) => _agentHandsInventory.HasItem(entityType);
     public bool IsHoldingAnyItemInHand() => _agentHandsInventory.IsAnyItemInInventory;
 
-    public EntityType GetEntityTypeInHand()
-    {
-        return _agentHandsInventory.IsAnyItemInInventory ? _agentHandsInventory.GetEntitiesInInventory().First() : EntityType.None;
-    }
-
     public void InteractOn(IInteractableEntity entity, double deltaTime)
     {
         if (_agentHandsInventory.HasItem(entity.RequiredEntityTypeForInteraction))
@@ -117,12 +115,16 @@ public partial class Agent3D : Node3D
     {
         return MathHelper.IsNearPosition(GlobalPosition, target.GlobalPosition);
     }
+    
+    #endregion
 
+    #region Agent Planner Interface
+    
     public List<(string, int)> GetAgentWorldState()
     {
         var inventoryState = _agentHandsInventory.GetInventoryState();
         if (inventoryState.Count == 0)
-            inventoryState.Add((GoapWorldStateConstants.HasModifierPrefix + GoapWorldStateConstants.AgentEmptyHandsKey, 1));
+            inventoryState.Add((GoapWorldStateConstants.AgentHasEmptyHandsKey, 1));
         return inventoryState;
     }
 
@@ -132,4 +134,6 @@ public partial class Agent3D : Node3D
     }
 
     public void ExecuteActionQueue() => _isReadyToExecute = true;
+    
+    #endregion
 }

@@ -5,7 +5,7 @@ namespace GodotGOAPAI.Source.Goap.Agent;
 
 public static class AgentInventoryHelper
 {
-    public static Dictionary<EntityType, int> InventoryConstants = new Dictionary<EntityType, int>()
+    public static readonly Dictionary<EntityType, int> InventoryConstants = new()
     {
         { EntityType.Axe, 1 },
         { EntityType.Hammer, 1 },

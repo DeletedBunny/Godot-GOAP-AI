@@ -83,8 +83,6 @@ public class AgentInventory
     {
         return _inventory.ContainsKey(entityType) && _inventory[entityType] >= requiredAmount;
     }
-    
-    public List<EntityType> GetEntitiesInInventory() => _inventory.Keys.ToList();
 
     public List<(string, int)> GetInventoryState()
     {

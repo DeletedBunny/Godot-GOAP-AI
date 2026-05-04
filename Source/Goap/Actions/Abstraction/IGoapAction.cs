@@ -14,8 +14,11 @@ public interface IGoapAction
     GoapActionDataComponent DataComponent { get; }
     GoapActionPreconditionComponent PreconditionsComponent { get; }
     GoapActionEffectComponent EffectsComponent { get; }
-    GoapActionTargetProvider TargetProvider { get; }
-    void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions, GoapActionEffectComponent actionEffects);
+    void Initialize(
+        IAgentActionable agent, 
+        GoapActionDataComponent actionData, 
+        GoapActionPreconditionComponent actionPreconditions, 
+        GoapActionEffectComponent actionEffects);
     void InitializeTargetProvider(GoapWorldStateModel worldStateModel, IGoapAction previousAction, EntityType moveToType);
     Node3D GetTarget();
     void ExecuteAction(double deltaTime);
