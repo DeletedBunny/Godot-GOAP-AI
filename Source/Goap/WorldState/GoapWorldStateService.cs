@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
@@ -129,6 +128,7 @@ public partial class GoapWorldStateService : Node
 		GD.PrintErr($"EntityDropped: Entity {entity} is not an IEntity");
 	}
 
+	// Would be nice to have it work
 	public void ReserveEntity(EntityType entityType, Node3D entityNode)
 	{
 		lock (_worldStateLock)

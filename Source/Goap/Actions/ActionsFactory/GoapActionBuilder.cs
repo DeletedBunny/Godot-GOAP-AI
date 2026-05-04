@@ -9,10 +9,10 @@ namespace GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
 
 public class GoapActionBuilder
 {
+    private readonly GoapActionPreconditionComponent _actionPreconditions = new();
+    private readonly GoapActionEffectComponent _actionEffects = new();
+    private GoapActionDataComponent _actionData;
     private GoapActionType _actionType;
-    private GoapActionDataComponent _actionData = new();
-    private GoapActionPreconditionComponent _actionPreconditions = new();
-    private GoapActionEffectComponent _actionEffects = new();
         
     public static GoapActionBuilder Create(GoapActionType actionType) => new() { _actionType = actionType };
 
@@ -40,7 +40,7 @@ public class GoapActionBuilder
         return this;
     }
 
-    public void Build<TAction>(GoapActionsFactory factory) where TAction : IGoapAction, new()
+    public void Build<TAction>(IGoapActionsFactoryBuilding factory) where TAction : IGoapAction, new()
     {
         factory.AddAction(_actionType, new GoapActionRegistration(
             factory.CreateAction<TAction>,

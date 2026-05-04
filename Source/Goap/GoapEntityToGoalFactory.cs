@@ -5,16 +5,13 @@ using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.Goap;
 
-public class GoapEntityToGoalFactory
+public static class GoapEntityToGoalFactory
 {
-    private static Dictionary<EntityType, GoapActionPreconditionComponent> _entityToGoal = new()
+    private static readonly Dictionary<EntityType, GoapActionPreconditionComponent> _entityToGoal = new()
     {
         { EntityType.HomeA, new GoapActionPreconditionComponent()
         {
-            Preconditions = new List<KeyValuePair<string, int>>()
-            {
-                new ("HomeAInWorld", 1)
-            }
+            Preconditions = [new("HomeAInWorld", 1)]
         } }
     };
 

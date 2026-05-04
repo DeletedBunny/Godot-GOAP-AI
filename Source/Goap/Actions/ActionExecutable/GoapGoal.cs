@@ -23,14 +23,14 @@ public class GoapGoal : IGoapAction
         } 
     }
     
-    public bool IsInitialized { get; protected set; }
+    public bool IsInitialized { get; private set; }
 
     public GoapActionDataComponent DataComponent { get; } = new();
     public GoapActionPreconditionComponent PreconditionsComponent { get; private set; }
     public GoapActionEffectComponent EffectsComponent { get; } = new();
     public GoapActionTargetProvider TargetProvider { get; } = new();
 
-    public void Initialize(Agent3D agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions,
+    public void Initialize(IAgentActionable agent, GoapActionDataComponent actionData, GoapActionPreconditionComponent actionPreconditions,
         GoapActionEffectComponent actionEffects)
     {
         PreconditionsComponent = actionPreconditions;

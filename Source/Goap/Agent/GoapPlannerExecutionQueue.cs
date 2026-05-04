@@ -4,17 +4,18 @@ using System.Linq;
 using Godot;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 
-namespace GodotGOAPAI.Source.Goap.Planner;
+namespace GodotGOAPAI.Source.GOAP.Agent;
 
 public class GoapPlannerExecutionQueue
 {
-    private readonly List<IGoapAction> _executionQueue = new List<IGoapAction>();
-    private readonly object _executionQueueLock = new object();
+    public const string ExceptionActionKey = "action";
     
+    private readonly List<IGoapAction> _executionQueue = [];
+    private readonly object _executionQueueLock = new object();
+
     private IGoapAction _runningAction;
     
     public bool IsQueueEmpty => _runningAction == null && _executionQueue.Count == 0;
-    public string ExceptionActionKey = "action";
     
     public void AddToQueue(IGoapAction action)
     {
@@ -41,7 +42,7 @@ public class GoapPlannerExecutionQueue
         }
     }
 
-    public void ClearQueue()
+    private void ClearQueue()
     {
         lock (_executionQueueLock)
         {

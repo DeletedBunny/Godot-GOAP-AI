@@ -1,15 +1,19 @@
 using System.Collections.Generic;
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
+using GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
 using GodotGOAPAI.Source.Goap.Agent;
-using GodotGOAPAI.Source.WorldEntityItems.Constants;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionsFactory;
 
 public interface IGoapActionsFactory
 {
     void RegisterActions();
-    IGoapAction GetAction(GoapActionType type, Agent3D agent);
     IGoapAction GetGoal(GoapActionPreconditionComponent preconditionComponent);
-    List<IGoapAction> GetMatchingActionsByEffect(string actionResultKey, EntityType requiredEntity, Agent3D agent);
+
+    List<GoapPlanningAction> GetMatchingActionsWithAmount(
+        KeyValuePair<string, int> actionPrecondition,
+        GoapWorldStateModel worldStateModel,
+        IAgentPlanner agent);
 }

@@ -4,17 +4,17 @@ namespace GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 public static class IgnoredWorldResourceTypes
 {
-    public static List<EntityType> IgnoreList = new List<EntityType>()
-    {
+    public static readonly List<EntityType> IgnoreList =
+    [
         EntityType.Tree,
         EntityType.Mountain,
         EntityType.Bush
-    };
+    ];
 }
 
 public static class ResourceToPathLookup
 {
-    public static Dictionary<EntityType, string> EntityToPath = new Dictionary<EntityType, string>()
+    public static readonly Dictionary<EntityType, string> EntityToPath = new()
     {
         { EntityType.Axe, "res://Resources/Units/axe.tscn" },
         { EntityType.Hammer, "res://Resources/Units/hammer.tscn" },

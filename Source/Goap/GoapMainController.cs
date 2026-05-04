@@ -37,15 +37,15 @@ public partial class GoapMainController : Node
 	{
 		var agent = _agentsCollectionNode.GetChild(0);
 
-		if (agent is not Agent3D agent3d)
+		if (agent is not IAgentPlanner agent3D)
 			return;
 		
-		if (buildEvent is not PlanBuildEvent planBuildEvent || _planningStarted || !agent3d.IsReadyToPlan)
+		if (buildEvent is not PlanBuildEvent planBuildEvent || _planningStarted || !agent3D.IsReadyToPlan)
 			return;
 
 		_planningStarted = true;
 		GoapEntityToGoalFactory.GetGoal(planBuildEvent.BuildingType, out var goal);
-		_planner.Plan(agent3d, goal);
+		_planner.Plan(agent3D, goal);
 		_planningStarted = false;
 	}
 

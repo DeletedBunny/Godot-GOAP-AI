@@ -9,11 +9,12 @@ using GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 using GodotGOAPAI.Source.Goap.Actions.ActionsFactory;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.WorldState;
+using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
 
 namespace GodotGOAPAI.Source.GOAP.Actions.ActionsFactory;
 
-public class GoapActionsFactory : IGoapActionsFactory
+public class GoapActionsFactory : IGoapActionsFactory, IGoapActionsFactoryBuilding
 {
     private readonly Dictionary<GoapActionType, GoapActionRegistration> _goapActions = new();
     
@@ -176,7 +177,7 @@ public class GoapActionsFactory : IGoapActionsFactory
         _goapActions.Add(actionType, actionRegistration);
     }
 
-    public IGoapAction GetAction(GoapActionType type, Agent3D agent)
+    private IGoapAction GetAction(GoapActionType type, IAgentPlanner agent)
     {
         if (type == GoapActionType.PlanningTreeRoot)
             throw new Exception($"{type} action cannot be retrieved, use {nameof(GetGoal)} instead.");
@@ -196,8 +197,31 @@ public class GoapActionsFactory : IGoapActionsFactory
         actionInstance.Initialize(null, null, preconditionComponent, null);
         return actionInstance;
     }
+    
+    public List<GoapPlanningAction> GetMatchingActionsWithAmount(
+        KeyValuePair<string, int> actionPrecondition, 
+        GoapWorldStateModel worldStateModel, 
+        IAgentPlanner agent)
+    {
+        var entityType = EntityType.None;
+        if (actionPrecondition.Key.Equals(GoapWorldStateConstants.AgentHasEmptyHandsKey) && actionPrecondition.Value > 0)
+            entityType = worldStateModel.GetEntityStringFromPartialKey(GoapWorldStateConstants.HasModifierPrefix, [GoapWorldStateConstants.AgentHasEmptyHandsKey]);
+        var matchingActions = GetMatchingActionsByEffect(actionPrecondition.Key, entityType, agent);
 
-    public List<IGoapAction> GetMatchingActionsByEffect(string actionResultKey, EntityType requiredEntity, Agent3D agent)
+        var goapPlanningActions = matchingActions.Select<IGoapAction, GoapPlanningAction>(action =>
+        {
+            if (action.Type == GoapActionType.MoveTo)
+                return new () { ActionInstance = action, RepeatCount = 1 };
+            
+            var effect = action.EffectsComponent.Effects.First(kvp => kvp.Key.Equals(actionPrecondition.Key));
+            var repeatCount = (int)Math.Ceiling(actionPrecondition.Value / (float)effect.Value);
+            return new() { ActionInstance = action, RepeatCount = repeatCount };
+        }).ToList();
+
+        return goapPlanningActions;
+    }
+
+    private List<IGoapAction> GetMatchingActionsByEffect(string actionResultKey, EntityType requiredEntity, IAgentPlanner agent)
     {
         var actionMap = _goapActions
                         .Where(a => FilterActionWithSpecialCases(a, actionResultKey))
@@ -218,14 +242,15 @@ public class GoapActionsFactory : IGoapActionsFactory
     }
 
     public IGoapAction CreateAction<TAction>(
-        Agent3D agent, 
+        IAgentPlanner agent, 
         GoapActionDataComponent actionData, 
         GoapActionPreconditionComponent actionPreconditions, 
         GoapActionEffectComponent actionEffects) 
         where TAction : IGoapAction, new()
     {
         var action = new TAction();
-        action.Initialize(agent, actionData, actionPreconditions, actionEffects);
+        var agentActionable = agent as IAgentActionable;
+        action.Initialize(agentActionable, actionData, actionPreconditions, actionEffects);
         return action;
     }
 
@@ -234,7 +259,7 @@ public class GoapActionsFactory : IGoapActionsFactory
         var isActionContainsEffect = action.Value.ActionEffects.ContainsEffect(actionResultKey);
         var isEffectValuePositive = action.Value.ActionEffects.Effects.Find(kvp => kvp.Key.Equals(actionResultKey)).Value >= 0;
         var isActionSpecialCase = false;
-        if (actionResultKey.Equals(GoapWorldStateConstants.HasModifierPrefix + GoapWorldStateConstants.AgentEmptyHandsKey))
+        if (actionResultKey.Equals(GoapWorldStateConstants.AgentHasEmptyHandsKey))
         {
             isActionSpecialCase = action.Key is GoapActionType.DeliverLogToBuildZone or GoapActionType.DeliverStoneToBuildZone;
         }

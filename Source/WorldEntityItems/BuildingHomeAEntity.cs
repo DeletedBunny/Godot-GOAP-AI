@@ -1,7 +1,5 @@
-using System;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
-using GodotGOAPAI.Source.Goap.WorldState;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
 using GodotGOAPAI.Source.WorldEntityItems.Abstractions;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
@@ -16,14 +14,13 @@ public partial class BuildingHomeAEntity : BaseEntity, IInteractableEntity, IDel
 	[Export] private bool _isIcon = false;
 	private ShaderMaterial _material;
 	private double _deltaTimeCummulative;
-	private bool _isBuildingDone;
 	private float _buildProgress = 0.1f;
 	private float _buildProgressMax = 1f;
 	private float _resourceSpacing = 0.3f;
 	private int _resourceRowAmount = 4;
 	
 	public override EntityType EntityType => EntityType.HomeA;
-	public bool IsEntityInteractionFinished => _isBuildingDone;
+	public bool IsEntityInteractionFinished { get; private set; }
 	public EntityType RequiredEntityTypeForInteraction => EntityType.Hammer;
 	
 	public override void _Ready()
@@ -68,10 +65,10 @@ public partial class BuildingHomeAEntity : BaseEntity, IInteractableEntity, IDel
 			_buildProgress += 0.1f;
 			_material?.SetShaderParameter("clipping_height", _buildProgress);
 		}
-		else if(!_isBuildingDone)
+		else if(!IsEntityInteractionFinished)
 		{
 			_material?.SetShaderParameter("clipping_height", 1);
-			_isBuildingDone = true;
+			IsEntityInteractionFinished = true;
 			foreach (var child in _resourceZone.GetChildren())
 			{
 				child.QueueFree();

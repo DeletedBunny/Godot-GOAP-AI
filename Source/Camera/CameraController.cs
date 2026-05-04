@@ -12,6 +12,7 @@ public partial class CameraController : Node3D
 	private const int MaxZoomLevel = 6;
 	private const int ZoomStepSize = 3;
 	
+	[Export]
 	private Camera3D _camera;
 	private Vector3 _velocity = Vector3.Zero;
 	
@@ -27,7 +28,6 @@ public partial class CameraController : Node3D
 
 	public override void _Ready()
 	{
-		_camera = GetNode<Camera3D>("Camera3D");
 		_zoomDesired = new Vector3(0, _camera.Position.Y, _camera.Position.Z);
 		_zoomActual = _zoomDesired;
 		// Can be Y or Z because we will only zoom forward and back with no rotation applied on camera

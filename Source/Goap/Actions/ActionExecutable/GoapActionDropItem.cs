@@ -1,7 +1,6 @@
 using GodotGOAPAI.Source.Goap.Actions.Abstraction;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateModels;
 using GodotGOAPAI.Source.WorldEntityItems.Constants;
-using GodotGOAPAI.Source.WorldEntityItems.Interfaces;
 
 namespace GodotGOAPAI.Source.Goap.Actions.ActionExecutable;
 
