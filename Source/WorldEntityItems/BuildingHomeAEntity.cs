@@ -78,6 +78,14 @@ public partial class BuildingHomeAEntity : BaseEntity, IInteractableEntity, IDel
 			}
 			EventBus.Instance.SendEvent(new WorldStateChangedEvent()
 			{
+				ChangedNodes = new ()
+				{
+					{ EntityType.BuildingZone, [this] }
+				},
+				IsRemoved = true
+			});
+			EventBus.Instance.SendEvent(new WorldStateChangedEvent()
+			{
 				ChangedNodes = new()
 				{
 					{ EntityType.HomeA, [this] }

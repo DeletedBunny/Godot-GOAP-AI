@@ -1,7 +1,6 @@
 using System;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
-using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
@@ -36,19 +35,18 @@ public partial class GoapMainController : Node
 
 	private void OnBuildEvent(IEvent buildEvent)
 	{
-		if (buildEvent is not PlanBuildEvent planBuildEvent || _planningStarted || _planner.IsExecuting)
+		var agent = _agentsCollectionNode.GetChild(0);
+
+		if (agent is not Agent3D agent3d)
+			return;
+		
+		if (buildEvent is not PlanBuildEvent planBuildEvent || _planningStarted || !agent3d.IsReadyToPlan)
 			return;
 
 		_planningStarted = true;
-		GoapEntityToGoalFactory.EntityToGoal.TryGetValue(planBuildEvent.BuildingType, out var goal);
-		var agent = _agentsCollectionNode.GetChild(0);
-		_planner.Plan(agent as Agent3D, goal);
+		GoapEntityToGoalFactory.GetGoal(planBuildEvent.BuildingType, out var goal);
+		_planner.Plan(agent3d, goal);
 		_planningStarted = false;
-	}
-
-	public override void _Process(double delta)
-	{
-		_planner.Execute(delta);
 	}
 
 	public override void _ExitTree()

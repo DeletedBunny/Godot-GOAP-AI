@@ -14,6 +14,7 @@ public class GoapPlannerExecutionQueue
     private IGoapAction _runningAction;
     
     public bool IsQueueEmpty => _runningAction == null && _executionQueue.Count == 0;
+    public string ExceptionActionKey = "action";
     
     public void AddToQueue(IGoapAction action)
     {
@@ -57,6 +58,7 @@ public class GoapPlannerExecutionQueue
         catch (Exception ex)
         {
             GD.PrintErr(nameof(GoapPlannerExecutionQueue) + " encountered an error executing running action: " + ex);
+            throw;
         }
     }
 
@@ -83,7 +85,8 @@ public class GoapPlannerExecutionQueue
         }
         catch (Exception ex)
         {
-            ex.Data.Add("Action", nameof(_runningAction.GetType));
+            var type = _runningAction?.GetType();
+            ex.Data.Add(ExceptionActionKey, type?.Name);
             ClearQueue();
             _runningAction = null;
             throw;
