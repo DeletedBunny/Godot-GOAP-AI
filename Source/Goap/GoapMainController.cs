@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using GodotGOAPAI.Source.EventSystem;
+using GodotGOAPAI.Source.GOAP.Actions.ActionComponents;
 using GodotGOAPAI.Source.Goap.Agent;
 using GodotGOAPAI.Source.Goap.Planner;
 using GodotGOAPAI.Source.Goap.WorldState.WorldStateEvents;
@@ -21,6 +22,7 @@ public partial class GoapMainController : Node
 	{
 		EventBus.Instance.Subscribe<WorldReadyEvent>(OnWorldReady);
 		EventBus.Instance.Subscribe<PlanBuildEvent>(OnBuildEvent);
+		EventBus.Instance.Subscribe<GatherResourcesEvent>(OnGatherResourcesEvent);
 		base._Ready();
 	}
 
@@ -49,9 +51,36 @@ public partial class GoapMainController : Node
 		_planningStarted = false;
 	}
 
+	private void OnGatherResourcesEvent(IEvent gatherEvent)
+	{
+		var agent = _agentsCollectionNode.GetChild(0);
+
+		if (agent is not IAgentPlanner agent3D)
+			return;
+		
+		if (gatherEvent is not GatherResourcesEvent gatherResourcesEvent || _planningStarted || !agent3D.IsReadyToPlan)
+			return;
+
+		_planningStarted = true;
+		
+		var goal = new GoapActionPreconditionComponent()
+		{
+			Preconditions = 
+			[
+				new("LogInWorld", gatherResourcesEvent.LogAmount), 
+				new("StoneInWorld", gatherResourcesEvent.StoneAmount)
+			]
+		};
+		
+		_planner.Plan(agent3D, goal);
+		_planningStarted = false;
+	}
+
 	public override void _ExitTree()
 	{
 		EventBus.Instance.Unsubscribe<WorldReadyEvent>(OnWorldReady);
+		EventBus.Instance.Unsubscribe<PlanBuildEvent>(OnBuildEvent);
+		EventBus.Instance.Unsubscribe<GatherResourcesEvent>(OnGatherResourcesEvent);
 		base._ExitTree();
 	}
 }

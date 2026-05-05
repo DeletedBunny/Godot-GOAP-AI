@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dqwsyee5mbkcw"]
+
+[ext_resource type="Script" uid="uid://ca18tgarqbosu" path="res://Source/UI/GatherResourcesManager.cs" id="1_qehep"]
+
+[node name="GatherResourceManager" type="Node" unique_id=103487934]
+script = ExtResource("1_qehep")

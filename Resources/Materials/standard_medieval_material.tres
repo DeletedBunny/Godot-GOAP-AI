@@ -6,6 +6,7 @@
 albedo_texture = ExtResource("1_r16hw")
 roughness = 0.6
 distance_fade_mode = 3
+distance_fade_max_distance = 5.0
 stencil_mode = 3
 stencil_flags = 2
 stencil_compare = 2

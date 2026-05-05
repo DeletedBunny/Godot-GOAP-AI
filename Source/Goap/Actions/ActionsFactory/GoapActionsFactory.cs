@@ -214,7 +214,8 @@ public class GoapActionsFactory : IGoapActionsFactory, IGoapActionsFactoryBuildi
                 return new () { ActionInstance = action, RepeatCount = 1 };
             
             var effect = action.EffectsComponent.Effects.First(kvp => kvp.Key.Equals(actionPrecondition.Key));
-            var repeatCount = (int)Math.Ceiling(actionPrecondition.Value / (float)effect.Value);
+            var neededValue = actionPrecondition.Value - worldStateModel.GetState(actionPrecondition.Key);
+            var repeatCount = (int)Math.Ceiling(neededValue / (float)effect.Value);
             return new() { ActionInstance = action, RepeatCount = repeatCount };
         }).ToList();
 
