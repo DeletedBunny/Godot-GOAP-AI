@@ -7,7 +7,7 @@ namespace GodotGOAPAI.Source.Goap;
 
 public static class GoapEntityToGoalFactory
 {
-    private static readonly Dictionary<EntityType, GoapActionPreconditionComponent> _entityToGoal = new()
+    private static readonly Dictionary<EntityType, GoapActionPreconditionComponent> EntityToGoal = new()
     {
         { EntityType.HomeA, new GoapActionPreconditionComponent()
         {
@@ -19,7 +19,7 @@ public static class GoapEntityToGoalFactory
     {
         goal = new GoapActionPreconditionComponent
         {
-            Preconditions = _entityToGoal[entityType].Preconditions.ToList()
+            Preconditions = EntityToGoal[entityType].Preconditions.ToList()
         };
     }
 }

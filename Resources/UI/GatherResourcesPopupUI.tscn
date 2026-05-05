@@ -1,0 +1,115 @@
+[gd_scene format=3 uid="uid://clkdsdtdpyy3y"]
+
+[ext_resource type="Script" uid="uid://bxtwwscinmtwk" path="res://Source/UI/GatherResourcesPopup.cs" id="1_5rmdh"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_h55ve"]
+font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_bv14e"]
+font_size = 24
+
+[node name="GatherResourcesPopupUi" type="PanelContainer" unique_id=509404163 node_paths=PackedStringArray("_acceptButton", "_logAmountField", "_stoneAmountField")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5rmdh")
+_acceptButton = NodePath("VBoxContainer/MarginContainer/Button")
+_logAmountField = NodePath("VBoxContainer/LogHBox/MarginContainer2/LineEdit")
+_stoneAmountField = NodePath("VBoxContainer/StoneHBox/MarginContainer2/LineEdit")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=944948064]
+layout_mode = 2
+
+[node name="LogHBox" type="HBoxContainer" parent="VBoxContainer" unique_id=1714369756]
+layout_mode = 2
+alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/LogHBox" unique_id=1959524101]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Label" type="Label" parent="VBoxContainer/LogHBox/MarginContainer" unique_id=856518575]
+layout_mode = 2
+text = "Log Amount: "
+label_settings = SubResource("LabelSettings_h55ve")
+
+[node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer/LogHBox" unique_id=787145655]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/LogHBox/MarginContainer2" unique_id=711946365]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+placeholder_text = "0"
+alignment = 1
+max_length = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+
+[node name="StoneHBox" type="HBoxContainer" parent="VBoxContainer" unique_id=873780490]
+layout_mode = 2
+alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/StoneHBox" unique_id=370095195]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Label" type="Label" parent="VBoxContainer/StoneHBox/MarginContainer" unique_id=1717248297]
+layout_mode = 2
+text = "Stone Amount: "
+label_settings = SubResource("LabelSettings_bv14e")
+
+[node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer/StoneHBox" unique_id=1907079089]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/StoneHBox/MarginContainer2" unique_id=451471823]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+placeholder_text = "0"
+alignment = 1
+max_length = 1
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+middle_mouse_paste_enabled = false
+drag_and_drop_selection_enabled = false
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=1937072277]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Button" type="Button" parent="VBoxContainer/MarginContainer" unique_id=1657486787]
+custom_minimum_size = Vector2(150, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 24
+text = "Accept"
